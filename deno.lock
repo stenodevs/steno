@@ -3,15 +3,13 @@
   "specifiers": {
     "jsr:@std/assert@1": "1.0.6",
     "jsr:@std/collections@^1.0.5": "1.0.9",
-    "jsr:@std/encoding@*": "1.0.5",
     "jsr:@std/fs@*": "1.0.5",
     "jsr:@std/internal@^1.0.4": "1.0.4",
-    "jsr:@std/json@*": "1.0.0",
     "jsr:@std/path@*": "1.0.7",
     "jsr:@std/path@^1.0.7": "1.0.7",
-    "jsr:@std/streams@1": "1.0.7",
     "jsr:@std/toml@*": "1.0.1",
-    "jsr:@std/yaml@*": "1.0.5"
+    "jsr:@std/yaml@*": "1.0.5",
+    "npm:liquidjs@*": "10.19.0"
   },
   "jsr": {
     "@std/assert@1.0.6": {
@@ -23,9 +21,6 @@
     "@std/collections@1.0.9": {
       "integrity": "4f58104ead08a04a2199374247f07befe50ba01d9cca8cbb23ab9a0419921e71"
     },
-    "@std/encoding@1.0.5": {
-      "integrity": "ecf363d4fc25bd85bd915ff6733a7e79b67e0e7806334af15f4645c569fefc04"
-    },
     "@std/fs@1.0.5": {
       "integrity": "41806ad6823d0b5f275f9849a2640d87e4ef67c51ee1b8fb02426f55e02fd44e",
       "dependencies": [
@@ -35,17 +30,8 @@
     "@std/internal@1.0.4": {
       "integrity": "62e8e4911527e5e4f307741a795c0b0a9e6958d0b3790716ae71ce085f755422"
     },
-    "@std/json@1.0.0": {
-      "integrity": "985c1e544918d42e4e84072fc739ac4a19c3a5093292c99742ffcdd03fb6a268",
-      "dependencies": [
-        "jsr:@std/streams"
-      ]
-    },
     "@std/path@1.0.7": {
       "integrity": "76a689e07f0e15dcc6002ec39d0866797e7156629212b28f27179b8a5c3b33a1"
-    },
-    "@std/streams@1.0.7": {
-      "integrity": "1a93917ca0c58c01b2bfb93647189229b1702677f169b6fb61ad6241cd2e499b"
     },
     "@std/toml@1.0.1": {
       "integrity": "b55b407159930f338d384b1f8fd317c8e8a35e27ebb8946155f49e3a158d16c4",
@@ -57,23 +43,22 @@
       "integrity": "71ba3d334305ee2149391931508b2c293a8490f94a337eef3a09cade1a2a2742"
     }
   },
-  "redirects": {
-    "https://deno.land/x/refresh/mod.ts": "https://deno.land/x/refresh@1.0.0/mod.ts",
-    "https://esm.sh/marked": "https://esm.sh/marked@14.1.3"
+  "npm": {
+    "commander@10.0.1": {
+      "integrity": "sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug=="
+    },
+    "liquidjs@10.19.0": {
+      "integrity": "sha512-dNINmbNJ/bp3B8n25BtZQV/GbrmFf0o2InGdMdfQXa+LxfzTFXOkUnBsOLZUb82sLzxaiWv5Jc381Kn4zHjTsQ==",
+      "dependencies": [
+        "commander"
+      ]
+    }
   },
   "remote": {
-    "https://deno.land/std@0.114.0/async/deadline.ts": "1d6ac7aeaee22f75eb86e4e105d6161118aad7b41ae2dd14f4cfd3bf97472b93",
-    "https://deno.land/std@0.114.0/async/debounce.ts": "b2f693e4baa16b62793fd618de6c003b63228db50ecfe3bd51fc5f6dc0bc264b",
-    "https://deno.land/std@0.114.0/async/deferred.ts": "ab60d46ba561abb3b13c0c8085d05797a384b9f182935f051dc67136817acdee",
-    "https://deno.land/std@0.114.0/async/delay.ts": "f2d8ccaa8ebc26594bd8b0989edfd8a96257a714c1dee2fb54d986e5bdd840ac",
-    "https://deno.land/std@0.114.0/async/mod.ts": "78425176fabea7bd1046ce3819fd69ce40da85c83e0f174d17e8e224a91f7d10",
-    "https://deno.land/std@0.114.0/async/mux_async_iterator.ts": "62abff3af9ff619e8f2adc96fc70d4ca020fa48a50c23c13f12d02ed2b760dbe",
-    "https://deno.land/std@0.114.0/async/pool.ts": "353ce4f91865da203a097aa6f33de8966340c91b6f4a055611c8c5d534afd12f",
-    "https://deno.land/std@0.114.0/async/tee.ts": "3e9f2ef6b36e55188de16a667c702ace4ad0cf84e3720379160e062bf27348ad",
-    "https://deno.land/std@0.114.0/http/server.ts": "46f616eac1ca0ea7b9fce97102d185a3d97ae7d7d3bbd635b74cefe05ed1cb37",
-    "https://deno.land/x/refresh@1.0.0/mod.ts": "4cdfcbeec4c7322dd09e90171272b3c03b3826b0fb813a51758682f342461607",
-    "https://esm.sh/marked@14.1.3": "2ac8b3cae5727e93bc2e2ce69f31ccdfc265553dcc94c0fde2775dc51de32d79",
-    "https://esm.sh/v135/marked@14.1.3/denonext/marked.mjs": "7a6a7513d831e2e62f03853b05b84c9743df76d16df252ad751ae50174698a75"
+    "https://esm.sh/liquidjs@10.19.1": "d88310089897d7eea70dfbc4a4ed131c51d46f1ab3c2d678997506aed2f3446a",
+    "https://esm.sh/marked@15.0.4": "b13cb985a5fbc2e907b5ea3a3a28cfbe83ece234324b8bb75c6d2fef247a6c16",
+    "https://esm.sh/v135/liquidjs@10.19.1/denonext/liquidjs.mjs": "3bbb2b957a949bb62bff97a8ac96f1d2e76a36b167ed5c28d5a8e518497e28c3",
+    "https://esm.sh/v135/marked@15.0.4/denonext/marked.mjs": "757fe9ac9fb0cf62cbf20dc52ea80c5baf17c926dff0d624408a38b2494e787d"
   },
   "workspace": {
     "dependencies": [

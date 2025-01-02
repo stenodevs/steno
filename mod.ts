@@ -1,11 +1,13 @@
 import { type SiteConfig, loadConfig } from "./src/config.ts";
-import { Theme } from "./src/theme.ts";
+import type { ThemeConfig } from "./src/theme/config.ts";
 import { ensureDirSync } from "./src/fileUtils.ts";
 import { parseFrontmatter } from "./src/frontmatter.ts";
-import { wrapWithTemplate } from "./src/template.ts";
+import type { wrapWithTemplate as _wrapWithTemplate } from "./src/template.ts";
 import { startDevServer } from "./src/server.ts";
-import { marked } from "https://esm.sh/marked@14.1.3";
+import { marked } from "https://esm.sh/marked@15.0.4";
+import { Liquid } from "https://esm.sh/liquidjs@10.19.1";
 import { join } from "jsr:@std/path";
+import { parse as YAML } from "jsr:@std/yaml";
 
 export class Steno {
   private config: SiteConfig;
@@ -23,10 +25,8 @@ export class Steno {
     const contentDir = this.config.contentDir || 'content';
     const outputDir = this.config.output || 'dist';
 
-    // Ensure output directory exists
     ensureDirSync(outputDir);
 
-    // Process each content file
     for (const file of Deno.readDirSync(contentDir)) {
       const filePath = join(contentDir, file.name);
       if (Deno.statSync(filePath).isFile) {
@@ -41,35 +41,27 @@ export class Steno {
         // Determine output file path
         let outputFilePath = join(outputDir, file.name.replace('.md', '.html'));
         if (this.config.custom?.shortUrls) {
-          outputFilePath = join(outputDir, file.name.replace('.md', ''));
-          ensureDirSync(outputFilePath);
-          outputFilePath = join(outputFilePath, 'index.html');
+          if (file.name !== 'index.md') {
+            outputFilePath = join(outputDir, file.name.replace('.md', ''));
+            ensureDirSync(outputFilePath);
+            outputFilePath = join(outputFilePath, 'index.html');
+          } else {
+            outputFilePath = join(outputDir, 'index.html');
+          }
         }
 
-        // Wrap content in HTML template and write to output file
-        const title = (frontmatter.title as string) || this.config.title;
-        const wrappedContent = wrapWithTemplate(htmlContent, title, this.config);
-        Deno.writeTextFileSync(outputFilePath, wrappedContent);
+        // Render using the theme's layout
+        const renderedContent = this.theme?.renderLayout("layout", htmlContent, {
+          title: frontmatter.title || this.config.title,
+          ...frontmatter,
+        }) || htmlContent;
+
+        // Write the rendered content to the output file
+        Deno.writeTextFileSync(outputFilePath, renderedContent);
       }
     }
 
-    // Combine and minify stylesheets if configured
-    if (this.config.custom?.stylesheets) {
-      let combinedStyles = "";
-      this.config.custom.stylesheets.forEach(sheet => {
-        const sourcePath = join(this.config.contentDir || 'content', sheet);
-        try {
-          const stylesheetContent = Deno.readTextFileSync(sourcePath);
-          combinedStyles += stylesheetContent;
-        } catch (error) {
-          console.error(`Failed to read stylesheet ${sheet}:`, error);
-        }
-      });
-
-      const minifiedStyles = combinedStyles.replace(/\s+/g, ' ').trim();
-      const outputStylesPath = join(outputDir, "styles.min.css");
-      Deno.writeTextFileSync(outputStylesPath, minifiedStyles);
-    }
+    console.log("Build complete.");
   }
 
   public async dev(): Promise<void> {
@@ -82,5 +74,48 @@ export class Steno {
     } else {
       this.build();
     }
+  }
+}
+
+export class Theme {
+  private config: ThemeConfig;
+  private layoutsDir: string;
+  private componentsDir: string;
+
+  constructor(themeName: string, themePath: string) {
+    this.config = this.loadThemeConfig(themeName, themePath);
+    this.layoutsDir = join(themePath, this.config.layoutsDir || "layouts");
+    this.componentsDir = join(themePath, this.config.componentsDir || "components");
+  }
+
+  private loadThemeConfig(_themeName: string, themePath: string): ThemeConfig {
+    const configFilePath = themePath.endsWith("theme.yml")
+      ? themePath // Use full path if provided
+      : join(themePath, "theme.yml"); // Otherwise, construct path
+
+    console.log("Attempting to read theme config file at:", configFilePath);
+
+    const configContent = Deno.readTextFileSync(configFilePath);
+    return YAML(configContent) as ThemeConfig;
+  }
+
+  public renderLayout(layoutName: string, content: string, variables: Record<string, any>): string {
+    const layoutPath = join(this.layoutsDir, `${layoutName}.liquid`);
+    const layoutTemplate = Deno.readTextFileSync(layoutPath);
+    return this.renderTemplate(layoutTemplate, { content, ...variables });
+  }
+
+  public renderComponent(componentName: string, variables: Record<string, any>): string {
+    const componentPath = join(this.componentsDir, `${componentName}.liquid`);
+    const componentTemplate = Deno.readTextFileSync(componentPath);
+    return this.renderTemplate(componentTemplate, variables);
+  }
+
+  private renderTemplate(template: string, variables: Record<string, any>): string {
+    const liquid = new Liquid({
+      root: this.layoutsDir,
+      extname: ".liquid",
+    });
+    return liquid.parseAndRenderSync(template, variables);
   }
 }

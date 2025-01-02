@@ -1,5 +1,5 @@
-import { join } from "jsr:@std/path";
 import { parse as parseYaml } from "jsr:@std/yaml";
+import { parse as parseToml } from "jsr:@std/toml";
 
 export interface SiteConfig {
   title: string;
@@ -17,5 +17,12 @@ export interface SiteConfig {
 
 export function loadConfig(configPath: string): SiteConfig {
   const fileContents = Deno.readTextFileSync(configPath);
-  return parseYaml(fileContents) as SiteConfig;
+  if (configPath.endsWith(".yaml") || configPath.endsWith(".yml")) {
+    return parseYaml(fileContents) as SiteConfig;
+  } else if (configPath.endsWith(".toml")) {
+    const parsedToml = parseToml(fileContents) as unknown;
+    return parsedToml as SiteConfig;
+  } else {
+    throw new Error("Unsupported config file format. Please use .yaml, .yml, or .toml.");
+  }
 }

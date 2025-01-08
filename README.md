@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Steno</h1>
+  <img src="https://github.com/user-attachments/assets/0ace5c72-6a4c-477e-b62e-cf45553d8d6f" width="128" height="128" />
   <p>A simple static site generator build with Deno</p>
 </div>
 

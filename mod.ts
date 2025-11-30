@@ -2,7 +2,6 @@ import { loadConfig, type SiteConfig } from "./src/config.ts";
 import type { ThemeConfig } from "./src/theme/config.ts";
 import { ensureDirSync } from "./src/fileUtils.ts";
 import { parseFrontmatter } from "./src/frontmatter.ts";
-import type { wrapWithTemplate as _wrapWithTemplate } from "./src/template.ts";
 import { startDevServer } from "./src/server.ts";
 import { marked } from "https://esm.sh/marked@15.0.4";
 import { Liquid } from "https://esm.sh/liquidjs@10.19.1";

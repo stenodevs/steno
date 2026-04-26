@@ -7,5 +7,5 @@
   "imports": {
     "@std/assert": "jsr:@std/assert@1"
   },
-  "workspace": ["./test", "theme-example"]
+  "workspace": ["./test"]
 }

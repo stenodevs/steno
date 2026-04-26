@@ -11,18 +11,71 @@ function newBuildId() {
   return Math.random().toString(36).substring(2, 8);
 }
 
-function parseMarkdown(filePaths: string[]): Promise<string[]> {
-  return Promise.resolve(filePaths.map((filePath) => `Parsed content of ${filePath}`));
-}
-
-function filterContent(parsedFiles: string[]): string[] {
-  return parsedFiles.filter((content) => content.includes("Parsed"));
-}
-
-function emitContent(filteredContent: string[]): void {
-  for (const content of filteredContent) {
-    console.log(`Emitting content: ${content}`);
+async function parseMarkdown(filePaths: string[]): Promise<{ content: string, filePath: string }[]> {
+  const results = [];
+  for (const filePath of filePaths) {
+    try {
+      const fileContents = await Deno.readTextFile(filePath);
+      results.push({ content: fileContents, filePath });
+    } catch (error) {
+      console.error(`Error reading file ${filePath}:`, error);
+    }
   }
+  return results;
+}
+
+function filterContent(parsedFiles: { content: string, filePath: string }[]): { content: string, filePath: string }[] {
+  return parsedFiles.filter(file => file.content.includes("Parsed"));
+}
+
+async function emitContent(filteredContent: { content: string, filePath: string }[], outputDir: string): Promise<void> {
+  const distDir = join(outputDir, "dist");
+  await Deno.mkdir(distDir, { recursive: true });
+
+  for (const item of filteredContent) {
+    const relativePath = item.filePath.replace(new RegExp(`^${outputDir}/`), '');
+    const outputPath = join(outputDir, 'dist', ...relativePath.split('/').slice(1));
+    await Deno.writeTextFile(outputPath, item.content);
+  }
+
+  console.log(`Emitting ${filteredContent.length} content files to ${distDir}`);
+}
+
+async function buildProject(outputDir: string) {
+  const ctx: BuildCtx = {
+    buildId: newBuildId(),
+    output: outputDir,
+    allSlugs: [],
+  };
+
+  const perf = new PerfTimer();
+  perf.addEvent("clean");
+  await emptyDir(outputDir);
+  console.log(`Cleaned output directory \`${outputDir}\` in ${perf.timeSince("clean")}`);
+
+  perf.addEvent("glob");
+  const allFiles = await glob("**/*.*", outputDir);
+  const fps = allFiles.filter((fp) => fp.endsWith(".md")).sort();
+  console.log(`Found ${fps.length} input files from \`${outputDir}\` in ${perf.timeSince("glob")}`);
+
+  for (const filePath of fps) {
+    if (!filePath.endsWith(".md")) {
+      continue; // Skip non-md files
+    }
+
+    const relativePath = filePath.replace(outputDir, '');
+    const outputFilePath = joinSegments(outputDir, 'dist', ...relativePath.split('/').slice(1));
+
+    await Deno.mkdir(dirname(outputFilePath), { recursive: true });
+
+    const fileContents = await Deno.readTextFile(joinSegments(outputDir, filePath));
+    const parsedContent = `Parsed content of ${filePath}`;
+    const filteredContent = [parsedContent];
+
+    await Deno.writeTextFile(outputFilePath, filteredContent[0]);
+  }
+
+  console.log(`Emitted ${filteredContent.length} content files to ${distDir}`);
 }
 
 async function glob(pattern: string, root: string): Promise<string[]> {
@@ -54,10 +107,6 @@ function slugifyFilePath(filePath: string): string {
   return filePath.replace(/\s+/g, '-').toLowerCase();
 }
 
-function joinSegments(...segments: string[]): string {
-  return join(...segments);
-}
-
 async function buildProject(outputDir: string) {
   const ctx: BuildCtx = {
     buildId: newBuildId(),
@@ -75,13 +124,18 @@ async function buildProject(outputDir: string) {
   const fps = allFiles.filter((fp) => fp.endsWith(".md")).sort();
   console.log(`Found ${fps.length} input files from \`${outputDir}\` in ${perf.timeSince("glob")}`);
 
-  const filePaths = fps.map((fp) => joinSegments(outputDir, fp));
-  ctx.allSlugs = allFiles.map((fp) => slugifyFilePath(fp));
+  for (const filePath of fps) {
+    if (!filePath.endsWith(".md")) {
+      const relativePath = filePath.replace(outputDir, '');
+      const outputFilePath = joinSegments(outputDir, 'dist', ...relativePath.split('/').slice(1));
 
-  const parsedFiles = await parseMarkdown(filePaths);
-  const filteredContent = filterContent(parsedFiles);
+      await Deno.mkdir(dirname(outputFilePath), { recursive: true });
 
-  emitContent(filteredContent);
+      const fileContents = await Deno.readTextFile(joinSegments(outputDir, filePath));
+      await Deno.writeTextFile(outputFilePath, fileContents);
+    }
+  }
+
   console.log(`Done processing ${fps.length} files in ${perf.timeSince("clean")}`);
 }
 
@@ -121,4 +175,20 @@ export async function startDevServer(outputDir: string): Promise<void> {
       await buildProject(outputDir);
     }
   }
+}
+
+if (!req.url.includes("/reload")) {
+  const eventSourceScript = `
+    <script>
+      if (typeof(EventSource) !== "undefined") {
+        const eventSource = new EventSource("http://localhost:8000/reload");
+        eventSource.onmessage = function(event) {
+          location.reload();
+        };
+      } else {
+        console.log("Sorry, your browser does not support server-sent events...");
+      }
+    </script>
+  `;
+  fileContents = fileContents.replace(/<\/body>/, `${eventSourceScript}</body>`);
 }

@@ -1,5 +1,3 @@
-import { join } from "jsr:@std/path";
-
 export function ensureDirSync(dirPath: string): void {
   try {
     if (!Deno.statSync(dirPath).isDirectory) {

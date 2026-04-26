@@ -11,7 +11,7 @@
 - [x] Importing CSS and JS files
 - [x] Short URLs
 - [ ] Theme Support
-- [ ] Live reload server
+- [x] Live reload server
 - [ ] CLI
 
 ## Usage

@@ -1,8 +1,25 @@
 interface ScribeOptions {
   template: string;
-  context: Record<string, any>;
+  context: Record<string, unknown>;
   components: Record<string, string>; // Maps "Nav" -> "raw .scr template content"
 }
+
+type FilterFunction = (val: unknown, ...args: unknown[]) => unknown;
+
+interface ScribeHelpers {
+  escapeHtml: (val: unknown) => string;
+  filters: Record<string, FilterFunction>;
+  renderComponent: (
+    name: string,
+    props: Record<string, unknown>,
+    parentContext: Record<string, unknown>,
+  ) => string;
+}
+
+type CompiledTemplateFn = (
+  context: Record<string, unknown>,
+  helpers: ScribeHelpers,
+) => string;
 
 interface Node {
   type: "text" | "expression" | "html" | "if" | "each" | "component";
@@ -20,25 +37,29 @@ interface Node {
 }
 
 // Global filter registry
-export const filters: Record<string, (val: any, ...args: any[]) => any> = {
-  date: (val: any) => {
+export const filters: Record<string, FilterFunction> = {
+  date: (val: unknown) => {
     if (!val) return "";
-    const d = new Date(val);
+    const normalizedVal =
+      typeof val === "string" || typeof val === "number" || val instanceof Date
+        ? val
+        : String(val);
+    const d = new Date(normalizedVal);
     return isNaN(d.getTime()) ? String(val) : d.toLocaleDateString();
   },
-  truncate: (val: any, len = 100) => {
+  truncate: (val: unknown, len: unknown = 100) => {
     if (val === null || val === undefined) return "";
     const s = String(val);
     const parsedLen = typeof len === "string" ? parseInt(len, 10) : Number(len);
     const finalLen = isNaN(parsedLen) ? 100 : parsedLen;
     return s.length > finalLen ? s.slice(0, finalLen) + "..." : s;
   },
-  upper: (val: any) => (val ? String(val).toUpperCase() : ""),
-  lower: (val: any) => (val ? String(val).toLowerCase() : ""),
+  upper: (val: unknown) => (val ? String(val).toUpperCase() : ""),
+  lower: (val: unknown) => (val ? String(val).toLowerCase() : ""),
 };
 
 // HTML escaping helper
-export function escapeHtml(val: any): string {
+export function escapeHtml(val: unknown): string {
   if (val === null || val === undefined) return "";
   return String(val)
     .replace(/&/g, "&amp;")
@@ -418,7 +439,6 @@ function compileNodes(nodes: Node[]): string {
       }
       code += `}\n`;
     } else if (node.type === "each") {
-      const idx = node.indexVar || `_i${Math.random().toString(36).substring(2, 6)}`;
       code += `if (${node.array} && typeof ${node.array}[Symbol.iterator] === 'function') {\n`;
       if (node.indexVar) {
         code += `  let ${node.indexVar} = 0;\n`;
@@ -442,7 +462,7 @@ function compileNodes(nodes: Node[]): string {
   return code;
 }
 
-export function compileToFunction(template: string): Function {
+export function compileToFunction(template: string): CompiledTemplateFn {
   const parser = new ScribeParser(template);
   const ast = parser.parseBlock();
   const body = compileNodes(ast);
@@ -456,7 +476,7 @@ export function compileToFunction(template: string): Function {
   `;
 
   try {
-    return new Function("context", "helpers", functionCode);
+    return new Function("context", "helpers", functionCode) as CompiledTemplateFn;
   } catch (err) {
     console.error("Failed to compile template:", functionCode);
     throw err;
@@ -469,7 +489,11 @@ export function render(options: ScribeOptions): string {
   const helpers = {
     escapeHtml,
     filters,
-    renderComponent: (name: string, props: Record<string, any>, parentContext: Record<string, any>) => {
+    renderComponent: (
+      name: string,
+      props: Record<string, unknown>,
+      parentContext: Record<string, unknown>,
+    ) => {
       let componentTemplate = options.components[name];
       if (componentTemplate === undefined) {
         const altName = name.charAt(0).toLowerCase() + name.slice(1);
@@ -497,7 +521,7 @@ export function render(options: ScribeOptions): string {
   };
 
   const contextProxy = new Proxy(options.context, {
-    has(target, key) {
+    has(_target, key) {
       if (typeof key === "symbol") return false;
       if (key === "html" || key === "helpers" || key === "context") {
         return false;
@@ -509,7 +533,7 @@ export function render(options: ScribeOptions): string {
       if (key in target) return target[key as string];
       if (key in helpers) return undefined;
       if (typeof globalThis !== "undefined" && key in globalThis) {
-        return (globalThis as any)[key];
+        return (globalThis as Record<PropertyKey, unknown>)[key];
       }
       return undefined;
     },

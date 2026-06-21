@@ -1,5 +1,5 @@
-import { parse as parseYaml } from "jsr:@std/yaml";
-import { parse as parseToml } from "jsr:@std/toml";
+import { parse as parseYaml } from "@std/yaml";
+import { parse as parseToml } from "@std/toml";
 
 export interface SiteConfig {
   title: string;
@@ -12,6 +12,7 @@ export interface SiteConfig {
     stylesheets?: string[];
     shortUrls?: boolean;
     theme?: string;
+    themeConfig?: Record<string, unknown>;
   };
 }
 

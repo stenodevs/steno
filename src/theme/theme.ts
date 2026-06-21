@@ -1,16 +1,25 @@
 import { render } from "../scribe.ts";
 import type { StenoTheme } from "./types.ts";
-import { join, dirname } from "jsr:@std/path";
+import { join, dirname } from "@std/path";
 import { ensureDirSync } from "../fileUtils.ts";
-import { parse as parseYaml } from "jsr:@std/yaml";
+import { parse as parseYaml } from "@std/yaml";
+
+type ThemeConfig = Record<string, unknown>;
+
+interface ThemeDirectoryMetadata {
+  name?: string;
+  version?: string;
+  components?: Record<string, string>;
+  defaultConfig?: ThemeConfig;
+}
 
 export class Theme {
   public name: string;
   public version: string;
-  public config: Record<string, any>;
+  public config: ThemeConfig;
   private themeData: StenoTheme;
 
-  constructor(themeData: StenoTheme, userConfig: Record<string, any> = {}) {
+  constructor(themeData: StenoTheme, userConfig: ThemeConfig = {}) {
     this.themeData = themeData;
     this.name = themeData.name;
     this.version = themeData.version;
@@ -26,7 +35,7 @@ export class Theme {
    */
   public static loadFromDirectory(
     dir: string,
-    userConfig: Record<string, any> = {},
+    userConfig: ThemeConfig = {},
   ): Theme {
     let yamlContent = "";
     let yamlPath = join(dir, "theme.yaml");
@@ -37,7 +46,11 @@ export class Theme {
       yamlContent = Deno.readTextFileSync(yamlPath);
     }
 
-    const metadata = parseYaml(yamlContent) as any;
+    const parsedMetadata = parseYaml(yamlContent);
+    const metadata: ThemeDirectoryMetadata =
+      parsedMetadata && typeof parsedMetadata === "object"
+        ? (parsedMetadata as ThemeDirectoryMetadata)
+        : {};
     const name = metadata.name || "unnamed";
     const version = metadata.version || "1.0.0";
 
@@ -65,7 +78,7 @@ export class Theme {
       for (const [key, relPath] of Object.entries(metadata.components)) {
         // Capitalize component name
         const capKey = key.charAt(0).toUpperCase() + key.slice(1);
-        const fullPath = join(dir, relPath as string);
+        const fullPath = join(dir, relPath);
         try {
           components[capKey] = Deno.readTextFileSync(fullPath);
         } catch (err) {
@@ -119,7 +132,7 @@ export class Theme {
   public renderLayout(
     layoutName: string,
     content: string,
-    variables: Record<string, any>,
+    variables: Record<string, unknown>,
   ): string {
     const layoutTemplate = this.themeData.layouts[layoutName];
     if (!layoutTemplate) {
@@ -143,7 +156,7 @@ export class Theme {
    */
   public renderComponent(
     componentName: string,
-    variables: Record<string, any>,
+    variables: Record<string, unknown>,
   ): string {
     const componentTemplate = this.themeData.components?.[componentName];
     if (!componentTemplate) {

@@ -1,65 +1,144 @@
 <div align="center">
   <img src="https://github.com/user-attachments/assets/0ace5c72-6a4c-477e-b62e-cf45553d8d6f" width="128" height="128" />
-  <p>A simple static site generator build with Deno</p>
+  <p>A fast Deno-powered static site generator.</p>
 </div>
+
+Steno turns Markdown files into static HTML, adds frontmatter and theme support, and ships with a small CLI plus a live-reloading dev server.
+
+## What Steno does
+
+Steno is designed around a simple content pipeline:
+
+1. Read Markdown files from `content/`
+2. Parse YAML or TOML frontmatter
+3. Convert Markdown to HTML with `marked`
+4. Optionally render the HTML through a Scribe-based theme
+5. Write the generated pages to `dist/`
+6. Copy theme assets into `dist/assets/`
+
+That makes it a good fit for blogs, documentation sites, small marketing sites, and theme-driven static websites.
 
 ## Features
 
-- [x] Markdown support to generate HTML files
-- [x] Customizable config and metas
-- [x] Basic Frontmatter Support
-- [x] Importing CSS and JS files
-- [x] Short URLs
-- [ ] Theme Support
-- [ ] Live reload server
-- [ ] CLI
+- Markdown pages rendered to HTML with `marked`
+- YAML and TOML config loading
+- Frontmatter support with `---` (YAML) and `+++` (TOML)
+- Theme layouts, components, and static assets
+- Scribe templates for layouts and components
+- Live-reloading dev server on `http://localhost:8000`
+- CLI support for `build`, `dev`, `--config`, and `--help`
+- Root test harness with `deno task test`
 
-## Usage
+## Installation / usage
 
-First you need to create a main file, for example `mod.ts`:
+The package exports `mod.ts`, so you can import it directly in a Deno project:
 
 ```ts
-import { Steno } from '@steno/steno';
+import { Steno } from "@steno/steno";
 
 new Steno();
 ```
 
-Next, you need to copy the following `deno.json` file:
+For local development inside this repo, the current workflow is:
 
-```json
-{
-  "tasks": {
-    "dev": "deno run -A --watch ./mod.ts dev",
-    "build": "deno run -A ./mod.ts build"
-  }
-}
+```sh
+deno task dev
+deno task test
+deno run -A ./mod.ts build
 ```
 
-This way, you can easily run the main commands.
+## Quick start
 
-Once you have the main file and the `deno.json` file, you can create a `content` folder with your markdown files.
+Create the default config file at `content/.steno/config.yml`:
 
-For example, you can create a `content/index.md` file:
+```yaml
+title: My site
+description: A Steno site
+author: Your Name
+
+contentDir: content
+output: dist
+
+custom:
+  shortUrls: true
+  theme: "./test/test-theme"
+  themeConfig:
+    author: "Your Name"
+```
+
+Add a page at `content/index.md`:
 
 ```md
 ---
 title: Home
+layout: layout
 ---
 
-# Hello World
+# Hello
 
-Welcome to my blog. This is my first post. I hope you enjoy it. Yes.
+Welcome to Steno.
 ```
 
-Now, you can build the Steno project configuration:
+Then build the site:
 
-1. Create a folder named `steno` inside the `content` folder.
-2. Create a `config.yml` file inside the `steno` folder, for example:
+```sh
+deno run -A ./mod.ts build --config content/.steno/config.yml
+```
 
-```yml
-title: Welcome to my blog
-description: This is a blog about my life
-author: John Doe
+Or start the dev server with live reload:
+
+```sh
+deno run -A ./mod.ts dev --config content/.steno/config.yml
+```
+
+## CLI
+
+Steno’s CLI is implemented in `src/cli.ts` and used by `mod.ts`.
+
+### Commands
+
+- `build` — generate the site into `dist/` (default)
+- `dev` — start the dev server with file watching
+- `--help` — print CLI usage
+
+### Options
+
+- `-c, --config <path>` — path to the site config file
+
+### Examples
+
+```sh
+deno run -A ./mod.ts
+deno run -A ./mod.ts build
+deno run -A ./mod.ts dev
+deno run -A ./mod.ts build --config content/.steno/config.yml
+deno run -A ./mod.ts --help
+```
+
+## Configuration
+
+Steno loads config from YAML or TOML. The default path is `content/.steno/config.yml`.
+
+Supported top-level fields used by the current runtime include:
+
+- `title`
+- `description`
+- `author`
+- `head`
+- `contentDir`
+- `output`
+- `custom.shortUrls`
+- `custom.theme`
+- `custom.themeConfig`
+
+Example:
+
+```yaml
+title: My site
+description: A site built with Steno
+author: Your Name
+contentDir: content
+output: dist
 
 head:
   - name: icon
@@ -67,16 +146,128 @@ head:
 
 custom:
   shortUrls: true
+  theme: "./test/test-theme"
+  themeConfig:
+    author: "Your Name"
 ```
 
-Finally, you can run the following command to build the project:
+### Notes
+
+- `shortUrls: true` writes pages like `about/index.html` instead of `about.html`
+- `.steno/` is reserved for internal config files
+- only `.md` files are processed during builds
+
+## Themes
+
+Themes are loaded from `custom.theme` and can be either:
+
+- a local theme directory containing `theme.yaml` or `theme.yml`
+- a module import such as `jsr:`, `npm:`, `file:`, or `https:`
+
+Directory-based themes conventionally use:
+
+- `layouts/*.scr` for layouts
+- `components/*.scr` for reusable components
+- `assets/**` for static files copied to `dist/assets/`
+
+Example `theme.yaml`:
+
+```yaml
+name: "Steno Minimalist"
+version: "1.0.0"
+components:
+  header: "components/header.scr"
+  footer: "components/footer.scr"
+defaultConfig:
+  author: "Steno Creator"
+```
+
+Example theme structure:
+
+```text
+test/test-theme/
+├── theme.yaml
+├── assets/
+│   └── style.css
+├── components/
+│   ├── footer.scr
+│   └── header.scr
+└── layouts/
+    ├── layout.scr
+    └── post.scr
+```
+
+### Scribe template syntax
+
+Steno themes are rendered with Scribe, not Liquid.
+
+Common patterns:
+
+```scr
+{#if title}
+  <Header />
+{/if}
+
+{@html content}
+
+{ tags | join: ", " }
+
+{#each tags as tag}
+  <span>{tag}</span>
+{/each}
+```
+
+### Render context
+
+Layouts receive a context object containing:
+
+- `site` — the site config
+- `theme` — theme metadata plus merged theme config
+- `content` — rendered Markdown HTML
+- frontmatter fields such as `title`, `layout`, `date`, `tags`, and `author`
+
+The default layout name is `layout` when frontmatter does not specify one.
+
+## Development workflow
+
+The repo is structured so that the root package points at `mod.ts`, while the sandbox app lives under `test/`.
+
+- `deno task dev` delegates to `test/`
+- `deno task test` runs the root `test.ts` harness
+- `cd test && deno task build` builds the sandbox site directly
+
+Useful commands:
 
 ```sh
-deno task build
+deno check
+deno lint
+deno task test
+cd test && deno task build
 ```
 
-This will generate the `dist` folder with the HTML files.
+## Public API
+
+The main exports from `mod.ts` are:
+
+- `Steno`
+- `Theme`
+- `render`
+- `filters`
+- `StenoTheme`
+
+This lets you use the package as a library or as a runnable CLI entrypoint.
+
+## Project status
+
+The current implementation already includes:
+
+- Markdown-to-HTML compilation
+- theme loading and rendering
+- asset copying
+- a CLI
+- live reload in dev mode
+- a test suite
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
+MIT — see [`LICENSE.txt`.](LICENSE.txt)

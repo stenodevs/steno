@@ -1,156 +1,26 @@
-import { join, globToRegExp } from "jsr:@std/path";
-import { emptyDir } from "jsr:@std/fs";
+import { join } from "jsr:@std/path";
 
-type BuildCtx = {
-  buildId: string;
-  output: string;
-  allSlugs: string[];
-};
-
-function newBuildId() {
-  return Math.random().toString(36).substring(2, 8);
-}
-
-async function parseMarkdown(filePaths: string[]): Promise<{ content: string, filePath: string }[]> {
-  const results = [];
-  for (const filePath of filePaths) {
-    try {
-      const fileContents = await Deno.readTextFile(filePath);
-      results.push({ content: fileContents, filePath });
-    } catch (error) {
-      console.error(`Error reading file ${filePath}:`, error);
+const reloadScript = `
+  <script>
+    if (typeof(EventSource) !== "undefined") {
+      const eventSource = new EventSource("http://localhost:8000/reload");
+        eventSource.onmessage = function(_event) {
+        location.reload();
+      };
+    } else {
+      console.log("Sorry, your browser does not support server-sent events...");
     }
-  }
-  return results;
-}
+  </script>
+`;
 
-function filterContent(parsedFiles: { content: string, filePath: string }[]): { content: string, filePath: string }[] {
-  return parsedFiles.filter(file => file.content.includes("Parsed"));
-}
+export async function startDevServer(
+  outputDir: string,
+  buildFn: () => void,
+  watchDir: string = "content",
+): Promise<void> {
+  buildFn();
 
-async function emitContent(filteredContent: { content: string, filePath: string }[], outputDir: string): Promise<void> {
-  const distDir = join(outputDir, "dist");
-  await Deno.mkdir(distDir, { recursive: true });
-
-  for (const item of filteredContent) {
-    const relativePath = item.filePath.replace(new RegExp(`^${outputDir}/`), '');
-    const outputPath = join(outputDir, 'dist', ...relativePath.split('/').slice(1));
-    await Deno.writeTextFile(outputPath, item.content);
-  }
-
-  console.log(`Emitting ${filteredContent.length} content files to ${distDir}`);
-}
-
-async function buildProject(outputDir: string) {
-  const ctx: BuildCtx = {
-    buildId: newBuildId(),
-    output: outputDir,
-    allSlugs: [],
-  };
-
-  const perf = new PerfTimer();
-  perf.addEvent("clean");
-  await emptyDir(outputDir);
-  console.log(`Cleaned output directory \`${outputDir}\` in ${perf.timeSince("clean")}`);
-
-  perf.addEvent("glob");
-  const allFiles = await glob("**/*.*", outputDir);
-  const fps = allFiles.filter((fp) => fp.endsWith(".md")).sort();
-  console.log(`Found ${fps.length} input files from \`${outputDir}\` in ${perf.timeSince("glob")}`);
-
-  for (const filePath of fps) {
-    if (!filePath.endsWith(".md")) {
-      continue; // Skip non-md files
-    }
-
-    const relativePath = filePath.replace(outputDir, '');
-    const outputFilePath = joinSegments(outputDir, 'dist', ...relativePath.split('/').slice(1));
-
-    await Deno.mkdir(dirname(outputFilePath), { recursive: true });
-
-    const fileContents = await Deno.readTextFile(joinSegments(outputDir, filePath));
-    const parsedContent = `Parsed content of ${filePath}`;
-    const filteredContent = [parsedContent];
-
-    await Deno.writeTextFile(outputFilePath, filteredContent[0]);
-  }
-
-  console.log(`Emitted ${filteredContent.length} content files to ${distDir}`);
-}
-
-async function glob(pattern: string, root: string): Promise<string[]> {
-  const regExp = globToRegExp(pattern);
-  const files: string[] = [];
-  for await (const entry of Deno.readDir(root)) {
-    if (entry.isFile && regExp.test(entry.name)) {
-      files.push(entry.name);
-    }
-  }
-  return files;
-}
-
-class PerfTimer {
-  private events: Record<string, number> = {};
-
-  addEvent(event: string) {
-    this.events[event] = performance.now();
-  }
-
-  timeSince(event: string): string {
-    const now = performance.now();
-    const start = this.events[event];
-    return `${(now - start).toFixed(2)}ms`;
-  }
-}
-
-function slugifyFilePath(filePath: string): string {
-  return filePath.replace(/\s+/g, '-').toLowerCase();
-}
-
-async function buildProject(outputDir: string) {
-  const ctx: BuildCtx = {
-    buildId: newBuildId(),
-    output: outputDir,
-    allSlugs: [],
-  };
-
-  const perf = new PerfTimer();
-  perf.addEvent("clean");
-  await emptyDir(outputDir);
-  console.log(`Cleaned output directory \`${outputDir}\` in ${perf.timeSince("clean")}`);
-
-  perf.addEvent("glob");
-  const allFiles = await glob("**/*.*", outputDir);
-  const fps = allFiles.filter((fp) => fp.endsWith(".md")).sort();
-  console.log(`Found ${fps.length} input files from \`${outputDir}\` in ${perf.timeSince("glob")}`);
-
-  for (const filePath of fps) {
-    if (!filePath.endsWith(".md")) {
-      const relativePath = filePath.replace(outputDir, '');
-      const outputFilePath = joinSegments(outputDir, 'dist', ...relativePath.split('/').slice(1));
-
-      await Deno.mkdir(dirname(outputFilePath), { recursive: true });
-
-      const fileContents = await Deno.readTextFile(joinSegments(outputDir, filePath));
-      await Deno.writeTextFile(outputFilePath, fileContents);
-    }
-  }
-
-  console.log(`Done processing ${fps.length} files in ${perf.timeSince("clean")}`);
-}
-
-export async function startDevServer(outputDir: string): Promise<void> {
-  await buildProject(outputDir);
-
-  let configExists = true;
-  try {
-    await Deno.stat("./config");
-  } catch {
-    configExists = false;
-  }
-
-  const watchPaths = configExists ? ["./config"] : [];
-  const watcher = Deno.watchFs(watchPaths);
+  const watcher = Deno.watchFs([watchDir]);
 
   const handler = async (req: Request): Promise<Response> => {
     const url = new URL(req.url);
@@ -159,36 +29,37 @@ export async function startDevServer(outputDir: string): Promise<void> {
       filePath = join(outputDir, "index.html");
     }
     try {
-      const fileContents = await Deno.readTextFile(filePath);
+      let fileContents = await Deno.readTextFile(filePath);
       const contentType = filePath.endsWith(".css") ? "text/css" : "text/html";
-      return new Response(fileContents, { status: 200, headers: { "Content-Type": contentType } });
+      if (!req.url.includes("/reload") && contentType === "text/html") {
+        fileContents = fileContents.replace(
+          /<\/body>/,
+          `${reloadScript}</body>`,
+        );
+      }
+      return new Response(fileContents, {
+        status: 200,
+        headers: { "Content-Type": contentType },
+      });
     } catch {
       return new Response("404 - Not Found", { status: 404 });
     }
   };
 
   Deno.serve({ port: 8000, handler });
-  console.log("HTTP server running at http://localhost:8000/");
+
+  console.log("");
+  console.log("  \x1b[32msteno\x1b[0m  \x1b[90mdev server\x1b[0m");
+  console.log("");
+  console.log("  \x1b[90m➜\x1b[0m  \x1b[1mLocal\x1b[0m:   \x1b[36mhttp://localhost:8000/\x1b[0m");
+  console.log("  \x1b[90m➜\x1b[0m  \x1b[1mNetwork\x1b[0m: \x1b[36mhttp://0.0.0.0:8000/\x1b[0m");
+  console.log("");
 
   for await (const event of watcher) {
-    if (event.kind === "modify" || event.kind === "create") {
-      await buildProject(outputDir);
+    if (event.kind === "modify" || event.kind === "create" || event.kind === "remove") {
+      console.log(`  \x1b[90mchange detected, rebuilding...\x1b[0m`);
+      buildFn();
     }
   }
 }
 
-if (!req.url.includes("/reload")) {
-  const eventSourceScript = `
-    <script>
-      if (typeof(EventSource) !== "undefined") {
-        const eventSource = new EventSource("http://localhost:8000/reload");
-        eventSource.onmessage = function(event) {
-          location.reload();
-        };
-      } else {
-        console.log("Sorry, your browser does not support server-sent events...");
-      }
-    </script>
-  `;
-  fileContents = fileContents.replace(/<\/body>/, `${eventSourceScript}</body>`);
-}

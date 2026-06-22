@@ -38,10 +38,10 @@ export interface StenoTheme {
    * Optional schema defining the configuration options the theme supports.
    * This is a JSON Schema object.
    */
-  configSchema?: Record<string, any>;
+  configSchema?: Record<string, unknown>;
 
   /**
    * Optional default configuration values for the theme.
    */
-  defaultConfig?: Record<string, any>;
+  defaultConfig?: Record<string, unknown>;
 }

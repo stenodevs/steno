@@ -2,10 +2,14 @@
   "name": "@steno/steno",
   "exports": "./mod.ts",
   "tasks": {
-    "dev": "deno task --cwd test dev"
+    "dev": "deno run --watch main.ts"
   },
   "imports": {
-    "@std/assert": "jsr:@std/assert@1"
+    "@std/assert": "jsr:@std/assert@1",
+    "@std/path": "jsr:@std/path@1",
+    "@std/toml": "jsr:@std/toml@1",
+    "@std/yaml": "jsr:@std/yaml@1",
+    "marked": "npm:marked@15.0.4"
   },
   "workspace": ["./test"]
 }

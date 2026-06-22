@@ -1,15 +1,26 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@std/assert@1": "1.0.17",
     "jsr:@std/collections@^1.1.3": "1.1.6",
     "jsr:@std/fs@*": "1.0.21",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/path@*": "1.1.4",
+    "jsr:@std/path@1": "1.1.4",
     "jsr:@std/path@^1.1.4": "1.1.4",
     "jsr:@std/toml@*": "1.0.11",
-    "jsr:@std/yaml@*": "1.0.10"
+    "jsr:@std/toml@1": "1.0.11",
+    "jsr:@std/yaml@*": "1.0.10",
+    "jsr:@std/yaml@1": "1.0.10",
+    "npm:marked@15.0.4": "15.0.4"
   },
   "jsr": {
+    "@std/assert@1.0.17": {
+      "integrity": "df5ebfffe77c03b3fa1401e11c762cc8f603d51021c56c4d15a8c7ab45e90dbe",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
     "@std/collections@1.1.6": {
       "integrity": "b458160ce65ea5ad35da05d0a5cbee4b583677c8b443a10d7beb0c4ac63f2baa"
     },
@@ -39,6 +50,12 @@
       "integrity": "245706ea3511cc50c8c6d00339c23ea2ffa27bd2c7ea5445338f8feff31fa58e"
     }
   },
+  "npm": {
+    "marked@15.0.4": {
+      "integrity": "sha512-TCHvDqmb3ZJ4PWG7VEGVgtefA5/euFmsIhxtD0XsBxI39gUSKL81mIRFdt0AiNQozUahd4ke98ZdirExd/vSEw==",
+      "bin": true
+    }
+  },
   "remote": {
     "https://esm.sh/liquidjs@10.19.1": "068f0fce78446ab9073f2a49027f790c3e629f82e0607aa510419b714572ae44",
     "https://esm.sh/liquidjs@10.19.1/denonext/liquidjs.mjs": "bfdfbf8b3a53671f97857dbe7a5fb00996383b153707f77e55134e0b98d6fa47",
@@ -47,7 +64,11 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@std/assert@1"
+      "jsr:@std/assert@1",
+      "jsr:@std/path@1",
+      "jsr:@std/toml@1",
+      "jsr:@std/yaml@1",
+      "npm:marked@15.0.4"
     ]
   }
 }

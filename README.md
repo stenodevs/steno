@@ -1,7 +1,14 @@
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/0ace5c72-6a4c-477e-b62e-cf45553d8d6f" width="128" height="128" />
+  <picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/c8955414-6790-40fb-b38b-1a64cf11c0c3">
+  <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/1659f847-7180-4539-8ce9-57b610669d51">
+  <img width="233" height="81" alt="Fallback image description" src="https://github.com/user-attachments/assets/1659f847-7180-4539-8ce9-57b610669d51">
+</picture>
+  <br><br>
   <p>A fast Deno-powered static site generator.</p>
+  <small>Sponsored by <a href="https://tuta.com">Tuta</a></small>
 </div>
+<br><br>
 
 Steno turns Markdown files into static HTML, adds frontmatter and theme support, and ships with a small CLI plus a live-reloading dev server.
 
@@ -271,3 +278,11 @@ The current implementation already includes:
 ## License
 
 MIT — see [`LICENSE.txt`.](LICENSE.txt)
+
+## Sponsors
+
+<div align="center">
+  <a href="https://tuta.com">
+<img width="233" alt="image" src="https://github.com/user-attachments/assets/4849c0dd-79a0-44a4-b6e8-12127559961f" />
+  </a>
+</div>

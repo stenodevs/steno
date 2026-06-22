@@ -4,8 +4,9 @@ import type { StenoTheme } from "./src/theme/types.ts";
 import { ensureDirSync } from "./src/fileUtils.ts";
 import { parseFrontmatter } from "./src/frontmatter.ts";
 import { startDevServer } from "./src/server.ts";
-import { marked } from "https://esm.sh/marked@15.0.4";
-import { join, dirname } from "jsr:@std/path";
+import { parseCliArgs, printHelp } from "./src/cli.ts";
+import { marked } from "marked";
+import { join, dirname } from "@std/path";
 
 export { render, filters } from "./src/scribe.ts";
 export type { StenoTheme } from "./src/theme/types.ts";
@@ -15,9 +16,11 @@ export class Steno {
   private config: SiteConfig;
   private theme?: Theme;
   private themeLoadingPromise: Promise<void>;
+  private autoBuildOnInit: boolean;
 
-  constructor(configPath: string = "content/.steno/config.yml") {
+  constructor(configPath: string = "content/.steno/config.yml", autoBuildOnInit = true) {
     this.config = loadConfig(configPath);
+    this.autoBuildOnInit = autoBuildOnInit;
     this.themeLoadingPromise = this.loadTheme();
     this.init();
   }
@@ -135,7 +138,7 @@ export class Steno {
           const { frontmatter, body } = parseFrontmatter(fileContents);
 
           // Convert Markdown to HTML
-          const htmlContent = marked(body) as string;
+          const htmlContent = await marked.parse(body);
 
           // Determine output file path
           let outputFilePath = join(outputDir, entryRelPath.replace(/\.md$/, ".html"));
@@ -153,15 +156,14 @@ export class Steno {
           }
 
           // Determine layout
-          const layoutName = frontmatter.layout || "layout";
+          const layoutName = typeof frontmatter.layout === "string"
+            ? frontmatter.layout
+            : "layout";
 
           // Render using the theme's layout if available
           const renderedContent = this.theme
             ? await this.theme.renderLayout(layoutName, htmlContent, {
                 site: {
-                  title: this.config.title,
-                  description: this.config.description,
-                  author: this.config.author,
                   ...this.config,
                 },
                 theme: {
@@ -203,15 +205,28 @@ export class Steno {
    * Initializes the application.
    */
   private async init() {
-    if (!Deno.args.includes("dev")) {
+    if (this.autoBuildOnInit && !Deno.args.includes("dev")) {
       await this.build();
     }
   }
 }
 
 if (import.meta.main) {
-  const steno = new Steno();
-  if (Deno.args.includes("dev")) {
-    await steno.dev();
+  try {
+    const options = parseCliArgs(Deno.args);
+
+    if (options.command === "help") {
+      printHelp();
+    } else if (options.command === "dev") {
+      const steno = new Steno(options.configPath, false);
+      await steno.dev();
+    } else {
+      const steno = new Steno(options.configPath, false);
+      await steno.build();
+    }
+  } catch (error) {
+    console.error((error as Error).message);
+    printHelp();
+    Deno.exit(1);
   }
 }

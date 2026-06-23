@@ -23,9 +23,11 @@ import { parseFrontmatter } from "./src/frontmatter.ts";
 import { startDevServer } from "./src/server.ts";
 import { parseCliArgs, printHelp } from "./src/cli.ts";
 import { marked } from "marked";
-import { dirname, join } from "@std/path";
+import { dirname, join, isAbsolute } from "@std/path";
 
 export { filters, render } from "./src/scribe.ts";
+export type { ScribeOptions } from "./src/scribe.ts";
+export type { SiteConfig } from "./src/config.ts";
 export type { StenoTheme } from "./src/theme/types.ts";
 export { Theme } from "./src/theme/theme.ts";
 
@@ -72,7 +74,6 @@ export class Steno {
     if (!themeName) return;
 
     try {
-      // Determine if the theme path refers to a local file or directory
       const isLocalPath = themeName.startsWith(".") ||
         themeName.startsWith("/") ||
         themeName.startsWith("file://");
@@ -80,7 +81,7 @@ export class Steno {
       if (isLocalPath) {
         const themeDir = themeName.startsWith("file://")
           ? new URL(themeName).pathname
-          : join(Deno.cwd(), themeName);
+          : (isAbsolute(themeName) ? themeName : join(Deno.cwd(), themeName));
 
         // Check if theme.yaml or theme.yml exists inside the directory
         let hasThemeYaml = false;
@@ -108,7 +109,7 @@ export class Steno {
         // Otherwise, import as a standard Deno file module
         let resolvedPath = themeName.startsWith("file://")
           ? themeName
-          : `file://${join(Deno.cwd(), themeName)}`;
+          : `file://${isAbsolute(themeName) ? themeName : join(Deno.cwd(), themeName)}`;
 
         try {
           const stat = Deno.statSync(new URL(resolvedPath));
@@ -174,7 +175,7 @@ export class Steno {
           const fileContents = Deno.readTextFileSync(fullPath);
 
           // Parse frontmatter and content body
-          const { frontmatter, body } = parseFrontmatter(fileContents);
+          const { frontmatter, body } = parseFrontmatter(fileContents, fullPath);
 
           // Convert Markdown to HTML
           const htmlContent = await marked.parse(body);

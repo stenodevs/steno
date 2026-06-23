@@ -25,6 +25,8 @@ export class Theme {
   /** The merged configuration options (defaults + user overrides). */
   public config: ThemeConfig;
   private themeData: StenoTheme;
+  private layoutPaths: Record<string, string> = {};
+  private componentPaths: Record<string, string> = {};
 
   /**
    * Creates a new Theme instance.
@@ -72,6 +74,7 @@ export class Theme {
     const version = metadata.version || "1.0.0";
 
     const layouts: Record<string, string> = {};
+    const layoutPaths: Record<string, string> = {};
     const layoutsDir = join(dir, "layouts");
     try {
       const layoutsStat = Deno.statSync(layoutsDir);
@@ -82,7 +85,9 @@ export class Theme {
             (entry.name.endsWith(".scr") || entry.name.endsWith(".liquid"))
           ) {
             const key = entry.name.replace(/\.(scr|liquid)$/, "");
-            layouts[key] = Deno.readTextFileSync(join(layoutsDir, entry.name));
+            const fullLayoutPath = join(layoutsDir, entry.name);
+            layouts[key] = Deno.readTextFileSync(fullLayoutPath);
+            layoutPaths[key] = fullLayoutPath;
           }
         }
       }
@@ -91,6 +96,7 @@ export class Theme {
     }
 
     const components: Record<string, string> = {};
+    const componentPaths: Record<string, string> = {};
     if (metadata.components) {
       for (const [key, relPath] of Object.entries(metadata.components)) {
         // Capitalize component name
@@ -98,6 +104,7 @@ export class Theme {
         const fullPath = join(dir, relPath);
         try {
           components[capKey] = Deno.readTextFileSync(fullPath);
+          componentPaths[capKey] = fullPath;
         } catch (err) {
           console.error(
             `Failed to load component "${capKey}" from "${fullPath}":`,
@@ -140,7 +147,10 @@ export class Theme {
       defaultConfig: metadata.defaultConfig || {},
     };
 
-    return new Theme(themeData, userConfig);
+    const themeInstance = new Theme(themeData, userConfig);
+    themeInstance.layoutPaths = layoutPaths;
+    themeInstance.componentPaths = componentPaths;
+    return themeInstance;
   }
 
   /**
@@ -170,6 +180,7 @@ export class Theme {
         ...variables,
       },
       components: this.themeData.components || {},
+      filePath: this.layoutPaths[layoutName],
     });
   }
 
@@ -194,6 +205,7 @@ export class Theme {
       template: componentTemplate,
       context: variables,
       components: this.themeData.components || {},
+      filePath: this.componentPaths[componentName],
     });
   }
 

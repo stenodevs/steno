@@ -9,13 +9,15 @@
 /**
  * Options configuration for rendering a Scribe template.
  */
-interface ScribeOptions {
+export interface ScribeOptions {
   /** The raw template string to compile and render. */
   template: string;
   /** Context data containing variables accessible inside the template. */
   context: Record<string, unknown>;
   /** Dictionary of custom component templates, mapping component tag names (e.g. "Header") to their raw template string. */
   components: Record<string, string>; // Maps "Nav" -> "raw .scr template content"
+  /** Optional file path of the template being rendered, used for descriptive syntax error reporting. */
+  filePath?: string;
 }
 
 type FilterFunction = (val: unknown, ...args: unknown[]) => unknown;
@@ -182,10 +184,29 @@ function parseProps(attrString: string): Record<string, string> {
 
 class ScribeParser {
   private input: string;
+  private filePath?: string;
   private pos = 0;
 
-  constructor(input: string) {
+  constructor(input: string, filePath?: string) {
     this.input = input;
+    this.filePath = filePath;
+  }
+
+  private getLineAndCol(): { line: number; col: number } {
+    const textBefore = this.input.substring(0, this.pos);
+    const lines = textBefore.split("\n");
+    return {
+      line: lines.length,
+      col: lines[lines.length - 1].length + 1,
+    };
+  }
+
+  private throwError(message: string): never {
+    const { line, col } = this.getLineAndCol();
+    const prefix = this.filePath
+      ? `${this.filePath}:${line}:${col}: `
+      : `Line ${line}, col ${col}: `;
+    throw new Error(prefix + message);
   }
 
   private peek(offset = 0): string {
@@ -200,7 +221,7 @@ class ScribeParser {
     if (this.match(str)) {
       this.pos += str.length;
     } else {
-      throw new Error(`Expected "${str}" at position ${this.pos}`);
+      this.throwError(`Expected "${str}"`);
     }
   }
 
@@ -281,7 +302,7 @@ class ScribeParser {
 
     const asIndex = rawEach.indexOf(" as ");
     if (asIndex === -1) {
-      throw new Error(
+      this.throwError(
         `Invalid each block syntax: "${rawEach}". Expected "as" keyword.`,
       );
     }
@@ -491,8 +512,11 @@ function compileNodes(nodes: Node[]): string {
   return code;
 }
 
-export function compileToFunction(template: string): CompiledTemplateFn {
-  const parser = new ScribeParser(template);
+export function compileToFunction(
+  template: string,
+  filePath?: string,
+): CompiledTemplateFn {
+  const parser = new ScribeParser(template, filePath);
   const ast = parser.parseBlock();
   const body = compileNodes(ast);
 
@@ -534,7 +558,7 @@ export function compileToFunction(template: string): CompiledTemplateFn {
  * ```
  */
 export function render(options: ScribeOptions): string {
-  const renderFn = compileToFunction(options.template);
+  const renderFn = compileToFunction(options.template, options.filePath);
 
   const helpers = {
     escapeHtml,

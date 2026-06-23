@@ -25,10 +25,9 @@ export function parseFrontmatter(
         frontmatter = parseYaml(frontmatterContent);
       } catch (error) {
         const fileStr = filePath ? ` in "${filePath}"` : "";
+        const errMsg = error instanceof Error ? error.message : String(error);
         throw new Error(
-          `Failed to parse YAML frontmatter${fileStr}: ${
-            (error as Error).message
-          }`,
+          `Failed to parse YAML frontmatter${fileStr}: ${errMsg}`,
         );
       }
     } else {
@@ -36,10 +35,9 @@ export function parseFrontmatter(
         frontmatter = parseToml(frontmatterContent);
       } catch (error) {
         const fileStr = filePath ? ` in "${filePath}"` : "";
+        const errMsg = error instanceof Error ? error.message : String(error);
         throw new Error(
-          `Failed to parse TOML frontmatter${fileStr}: ${
-            (error as Error).message
-          }`,
+          `Failed to parse TOML frontmatter${fileStr}: ${errMsg}`,
         );
       }
     }

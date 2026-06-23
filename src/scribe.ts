@@ -1,6 +1,20 @@
+/**
+ * @module
+ * Scribe: A lightweight, custom template engine for Steno.
+ *
+ * This module parses template strings with support for control flow (`{#if}`, `{#each}`),
+ * expressions, global filters, and capitalized component tags (e.g. `<Header />`).
+ */
+
+/**
+ * Options configuration for rendering a Scribe template.
+ */
 interface ScribeOptions {
+  /** The raw template string to compile and render. */
   template: string;
+  /** Context data containing variables accessible inside the template. */
   context: Record<string, unknown>;
+  /** Dictionary of custom component templates, mapping component tag names (e.g. "Header") to their raw template string. */
   components: Record<string, string>; // Maps "Nav" -> "raw .scr template content"
 }
 
@@ -36,7 +50,15 @@ interface Node {
   props?: Record<string, string>;
 }
 
-// Global filter registry
+/**
+ * Global filter registry for template rendering.
+ *
+ * Includes standard built-in filters:
+ * - `date`: Formats string/number/Date values into a locale date string.
+ * - `truncate`: Limits a string to a specified length and appends "...".
+ * - `upper`: Converts text to uppercase.
+ * - `lower`: Converts text to lowercase.
+ */
 export const filters: Record<string, FilterFunction> = {
   date: (val: unknown) => {
     if (!val) return "";
@@ -494,6 +516,23 @@ export function compileToFunction(template: string): CompiledTemplateFn {
   }
 }
 
+/**
+ * Renders a Scribe template with the provided context and components.
+ *
+ * @param options - Configuration options for Scribe including template, context, and components.
+ * @returns The rendered template as a string.
+ *
+ * @example
+ * ```ts
+ * import { render } from "@steno/steno";
+ *
+ * const html = render({
+ *   template: "<h1>{title}</h1>",
+ *   context: { title: "Hello World" },
+ *   components: {}
+ * });
+ * ```
+ */
 export function render(options: ScribeOptions): string {
   const renderFn = compileToFunction(options.template);
 

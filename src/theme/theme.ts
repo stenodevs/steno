@@ -13,12 +13,25 @@ interface ThemeDirectoryMetadata {
   defaultConfig?: ThemeConfig;
 }
 
+/**
+ * Represents a Steno Theme, providing methods to load, render layouts and components,
+ * and copy static assets.
+ */
 export class Theme {
+  /** The theme name. */
   public name: string;
+  /** The theme version. */
   public version: string;
+  /** The merged configuration options (defaults + user overrides). */
   public config: ThemeConfig;
   private themeData: StenoTheme;
 
+  /**
+   * Creates a new Theme instance.
+   *
+   * @param themeData - The base configuration/templates of the theme.
+   * @param userConfig - Optional overrides for the theme defaults.
+   */
   constructor(themeData: StenoTheme, userConfig: ThemeConfig = {}) {
     this.themeData = themeData;
     this.name = themeData.name;
@@ -32,6 +45,10 @@ export class Theme {
 
   /**
    * Helper to load a filesystem-based theme directory using a theme.yaml file.
+   *
+   * @param dir - The path to the theme directory.
+   * @param userConfig - Optional overrides for the theme configuration.
+   * @returns A new {@link Theme} instance.
    */
   public static loadFromDirectory(
     dir: string,
@@ -128,6 +145,11 @@ export class Theme {
 
   /**
    * Renders a layout template with content and page variables using Scribe.
+   *
+   * @param layoutName - The name of the layout to render.
+   * @param content - The pre-rendered HTML body content.
+   * @param variables - Object containing page-level variables.
+   * @returns The rendered layout HTML string.
    */
   public renderLayout(
     layoutName: string,
@@ -153,6 +175,10 @@ export class Theme {
 
   /**
    * Renders a theme component using Scribe.
+   *
+   * @param componentName - The name of the component to render.
+   * @param variables - Object containing variables for the component.
+   * @returns The rendered component HTML string.
    */
   public renderComponent(
     componentName: string,
@@ -173,6 +199,9 @@ export class Theme {
 
   /**
    * Copies all theme assets to the output directory (e.g., dist/assets/).
+   *
+   * @param outputDir - The root output/dist directory path.
+   * @returns A promise that resolves when copying is finished.
    */
   public async copyAssets(outputDir: string): Promise<void> {
     if (!this.themeData.assets) return;

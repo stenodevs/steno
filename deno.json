@@ -1,8 +1,17 @@
 {
   "name": "@steno/steno",
+  "version": "0.1.0-alpha.1",
+  "description": "A fast Deno-powered static site generator with frontmatter, Scribe templates, and live-reloading dev server.",
   "exports": "./mod.ts",
-  "version": "0.1.0",
   "license": "MIT",
+  "publish": {
+    "exclude": [
+      ".github",
+      "test",
+      "test.ts",
+      "**/*_test.ts"
+    ]
+  },
   "tasks": {
     "dev": "deno task --cwd test dev",
     "test": "deno test -A ./test.ts"

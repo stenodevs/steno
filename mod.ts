@@ -1,3 +1,20 @@
+/**
+ * Steno: A fast Deno-powered static site generator.
+ *
+ * This module exports the main {@link Steno} orchestrator class, the {@link Theme} class for managing theme templates
+ * and assets, and Scribe rendering utilities.
+ *
+ * @example
+ * ```ts
+ * import { Steno } from "@steno/steno";
+ *
+ * const steno = new Steno("content/.steno/config.yml");
+ * await steno.build();
+ * ```
+ *
+ * @module
+ */
+
 import { loadConfig, type SiteConfig } from "./src/config.ts";
 import { Theme } from "./src/theme/theme.ts";
 import type { StenoTheme } from "./src/theme/types.ts";
@@ -12,12 +29,30 @@ export { filters, render } from "./src/scribe.ts";
 export type { StenoTheme } from "./src/theme/types.ts";
 export { Theme } from "./src/theme/theme.ts";
 
+/**
+ * The main orchestrator class for a Steno static site project.
+ * It manages configuration loading, theme resolution, building markdown files to HTML, and dev server watching.
+ *
+ * @example
+ * ```ts
+ * import { Steno } from "@steno/steno";
+ *
+ * const steno = new Steno();
+ * await steno.build();
+ * ```
+ */
 export class Steno {
   private config: SiteConfig;
   private theme?: Theme;
   private themeLoadingPromise: Promise<void>;
   private autoBuildOnInit: boolean;
 
+  /**
+   * Creates a new Steno instance.
+   *
+   * @param configPath Path to the site config file. Defaults to `"content/.steno/config.yml"`.
+   * @param autoBuildOnInit If true, triggers a build immediately on instantiation unless running in dev mode.
+   */
   constructor(
     configPath: string = "content/.steno/config.yml",
     autoBuildOnInit = true,
@@ -114,7 +149,9 @@ export class Steno {
   }
 
   /**
-   * Compiles the Markdown files into the final HTML output.
+   * Compiles the Markdown files into the final HTML output directory.
+   *
+   * @returns A promise that resolves when the build is complete.
    */
   public async build(): Promise<void> {
     await this.themeLoadingPromise;
@@ -198,7 +235,9 @@ export class Steno {
   }
 
   /**
-   * Starts a development server with automatic rebuilding on change.
+   * Starts a development server with automatic file watching and rebuilding on change.
+   *
+   * @returns A promise that resolves when the dev server starts.
    */
   public async dev(): Promise<void> {
     const contentDir = this.config.contentDir || "content";

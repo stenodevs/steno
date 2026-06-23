@@ -7,13 +7,13 @@ export function registerFileUtilsTests(): void {
     name: "fileUtils: ensureDirSync creates nested directories",
     permissions: { read: true, write: true },
     fn: () => {
-    const tempDir = Deno.makeTempDirSync();
-    const nestedDir = join(tempDir, "a", "b", "c");
+      const tempDir = Deno.makeTempDirSync();
+      const nestedDir = join(tempDir, "a", "b", "c");
 
-    ensureDirSync(nestedDir);
+      ensureDirSync(nestedDir);
 
-    const stat = Deno.statSync(nestedDir);
-    assertEquals(stat.isDirectory, true);
+      const stat = Deno.statSync(nestedDir);
+      assertEquals(stat.isDirectory, true);
     },
   });
 
@@ -21,15 +21,13 @@ export function registerFileUtilsTests(): void {
     name: "fileUtils: ensureDirSync is idempotent",
     permissions: { read: true, write: true },
     fn: () => {
-    const tempDir = Deno.makeTempDirSync();
+      const tempDir = Deno.makeTempDirSync();
 
-    ensureDirSync(tempDir);
-    ensureDirSync(tempDir);
+      ensureDirSync(tempDir);
+      ensureDirSync(tempDir);
 
-    const stat = Deno.statSync(tempDir);
-    assertEquals(stat.isDirectory, true);
+      const stat = Deno.statSync(tempDir);
+      assertEquals(stat.isDirectory, true);
     },
   });
 }
-
-

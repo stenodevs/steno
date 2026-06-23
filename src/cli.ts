@@ -19,7 +19,9 @@ export function parseCliArgs(args: string[]): CliOptions {
     if (arg === "-c" || arg === "--config") {
       const value = args[i + 1];
       if (!value || value.startsWith("-")) {
-        throw new Error("Missing value for --config. Example: --config content/.steno/config.yml");
+        throw new Error(
+          "Missing value for --config. Example: --config content/.steno/config.yml",
+        );
       }
       configPath = value;
       i++;
@@ -63,4 +65,3 @@ Examples:
   deno run -A ./mod.ts build --config content/.steno/config.yml
 `);
 }
-

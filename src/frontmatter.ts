@@ -1,7 +1,9 @@
 import { parse as parseYaml } from "@std/yaml";
 import { parse as parseToml } from "@std/toml";
 
-export function parseFrontmatter(content: string): { frontmatter: Record<string, unknown>, body: string } {
+export function parseFrontmatter(
+  content: string,
+): { frontmatter: Record<string, unknown>; body: string } {
   const frontmatterRegex = /^(---|\+\+\+)\n([\s\S]+?)\n\1/;
   const match = content.match(frontmatterRegex);
   if (match) {
@@ -24,10 +26,9 @@ export function parseFrontmatter(content: string): { frontmatter: Record<string,
         frontmatter = {};
       }
     }
-    const normalizedFrontmatter =
-      frontmatter && typeof frontmatter === "object"
-        ? (frontmatter as Record<string, unknown>)
-        : {};
+    const normalizedFrontmatter = frontmatter && typeof frontmatter === "object"
+      ? (frontmatter as Record<string, unknown>)
+      : {};
     return { frontmatter: normalizedFrontmatter, body };
   }
   return { frontmatter: {}, body: content };

@@ -19,7 +19,11 @@ export function registerCliTests(): void {
   });
 
   Deno.test("cli: parses build command and custom config", () => {
-    const options = parseCliArgs(["build", "--config", "content/.steno/custom.yml"]);
+    const options = parseCliArgs([
+      "build",
+      "--config",
+      "content/.steno/custom.yml",
+    ]);
     assertEquals(options, {
       command: "build",
       configPath: "content/.steno/custom.yml",
@@ -66,5 +70,3 @@ export function registerCliTests(): void {
     );
   });
 }
-
-

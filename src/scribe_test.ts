@@ -28,7 +28,11 @@ export function registerScribeTests(): void {
   Deno.test("scribe: renders components", () => {
     const output = render({
       template: `<Header title={title} />`,
-      context: { title: "Hello", site: { title: "Site" }, theme: { name: "T" } },
+      context: {
+        title: "Hello",
+        site: { title: "Site" },
+        theme: { name: "T" },
+      },
       components: {
         Header: `<h1>{ title }</h1>`,
       },
@@ -37,4 +41,3 @@ export function registerScribeTests(): void {
     assertEquals(output, "<h1>Hello</h1>");
   });
 }
-

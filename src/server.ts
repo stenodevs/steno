@@ -51,15 +51,21 @@ export async function startDevServer(
   console.log("");
   console.log("  \x1b[32msteno\x1b[0m  \x1b[90mdev server\x1b[0m");
   console.log("");
-  console.log("  \x1b[90m➜\x1b[0m  \x1b[1mLocal\x1b[0m:   \x1b[36mhttp://localhost:8000/\x1b[0m");
-  console.log("  \x1b[90m➜\x1b[0m  \x1b[1mNetwork\x1b[0m: \x1b[36mhttp://0.0.0.0:8000/\x1b[0m");
+  console.log(
+    "  \x1b[90m➜\x1b[0m  \x1b[1mLocal\x1b[0m:   \x1b[36mhttp://localhost:8000/\x1b[0m",
+  );
+  console.log(
+    "  \x1b[90m➜\x1b[0m  \x1b[1mNetwork\x1b[0m: \x1b[36mhttp://0.0.0.0:8000/\x1b[0m",
+  );
   console.log("");
 
   for await (const event of watcher) {
-    if (event.kind === "modify" || event.kind === "create" || event.kind === "remove") {
+    if (
+      event.kind === "modify" || event.kind === "create" ||
+      event.kind === "remove"
+    ) {
       console.log(`  \x1b[90mchange detected, rebuilding...\x1b[0m`);
       buildFn();
     }
   }
 }
-

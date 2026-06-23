@@ -11,4 +11,3 @@ registerFileUtilsTests();
 registerFrontmatterTests();
 registerScribeTests();
 registerThemeTests();
-

@@ -24,6 +24,8 @@ export function loadConfig(configPath: string): SiteConfig {
     const parsedToml = parseToml(fileContents) as unknown;
     return parsedToml as SiteConfig;
   } else {
-    throw new Error("Unsupported config file format. Please use .yaml, .yml, or .toml.");
+    throw new Error(
+      "Unsupported config file format. Please use .yaml, .yml, or .toml.",
+    );
   }
 }

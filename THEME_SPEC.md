@@ -1,6 +1,7 @@
 # Steno Theme Specification
 
-This document describes how themes work in the current Steno runtime (`mod.ts`, `src/theme/theme.ts`, `src/scribe.ts`).
+This document describes how themes work in the current Steno runtime (`mod.ts`,
+`src/theme/theme.ts`, `src/scribe.ts`).
 
 ## 1) Supported Theme Sources
 
@@ -9,7 +10,8 @@ Steno loads themes from `custom.theme` in `content/.steno/config.yml`:
 - Module import (JSR/NPM/URL/local module path): `await import(themeName)`.
 - Local theme directory: a directory containing `theme.yaml` or `theme.yml`.
 
-If `custom.theme` points to a local directory without `theme.yaml`/`theme.yml`, Steno falls back to module resolution (`mod.ts` / `theme.ts` / `index.ts`).
+If `custom.theme` points to a local directory without `theme.yaml`/`theme.yml`,
+Steno falls back to module resolution (`mod.ts` / `theme.ts` / `index.ts`).
 
 ## 2) Theme Contract (`StenoTheme`)
 
@@ -29,13 +31,15 @@ export interface StenoTheme {
 
 Runtime behavior to rely on:
 
-- Default layout key is `layout` (used when page frontmatter does not define `layout`).
+- Default layout key is `layout` (used when page frontmatter does not define
+  `layout`).
 - `defaultConfig` is merged with `custom.themeConfig` (`themeConfig` wins).
 - Assets are copied to `dist/assets/<relative-path>`.
 
 ## 3) Local Directory Theme Format
 
-For directory themes, `theme.yaml`/`theme.yml` provides metadata and optional component map. Example from `test/test-theme/theme.yaml`:
+For directory themes, `theme.yaml`/`theme.yml` provides metadata and optional
+component map. Example from `test/test-theme/theme.yaml`:
 
 ```yaml
 name: "Steno Minimalist"
@@ -51,7 +55,8 @@ Directory conventions used by loader (`Theme.loadFromDirectory()`):
 
 - `layouts/*.scr` (and `layouts/*.liquid` files are currently read too)
 - `assets/**` recursively copied as theme assets
-- Component keys from YAML are normalized to `PascalCase` internally (e.g., `header` -> `Header`)
+- Component keys from YAML are normalized to `PascalCase` internally (e.g.,
+  `header` -> `Header`)
 
 ## 4) Template Engine and Syntax
 
@@ -63,7 +68,8 @@ Supported Scribe patterns used in this repo:
 - HTML passthrough: `{@html content}`
 - Conditions: `{#if author}...{:else}...{/if}`
 - Loops: `{#each tags as tag}...{/each}`
-- Components: `<Header />`, `<Footer />`, including prop expressions like `<Card title={title} />`
+- Components: `<Header />`, `<Footer />`, including prop expressions like
+  `<Card title={title} />`
 
 See working examples in:
 
@@ -76,9 +82,12 @@ See working examples in:
 For each Markdown file, runtime context contains:
 
 - `content`: HTML generated from Markdown body via `marked`
-- `site`: global site config (`title`, `description`, `author`, plus config fields)
-- `theme`: theme metadata + merged theme config (`name`, `version`, config overrides)
-- Frontmatter keys spread at top level (`title`, `layout`, `author`, `tags`, `date`, etc.)
+- `site`: global site config (`title`, `description`, `author`, plus config
+  fields)
+- `theme`: theme metadata + merged theme config (`name`, `version`, config
+  overrides)
+- Frontmatter keys spread at top level (`title`, `layout`, `author`, `tags`,
+  `date`, etc.)
 
 Layout resolution is per-page: `frontmatter.layout || "layout"`.
 
@@ -103,7 +112,8 @@ Notes:
 
 ## 7) Publishing Module Themes (JSR)
 
-Theme modules can be published with a standard `deno.json`/`jsr.json` and consumed via:
+Theme modules can be published with a standard `deno.json`/`jsr.json` and
+consumed via:
 
 ```yaml
 custom:

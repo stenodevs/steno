@@ -3,7 +3,8 @@
   <p>A fast Deno-powered static site generator.</p>
 </div>
 
-Steno turns Markdown files into static HTML, adds frontmatter and theme support, and ships with a small CLI plus a live-reloading dev server.
+Steno turns Markdown files into static HTML, adds frontmatter and theme support,
+and ships with a small CLI plus a live-reloading dev server.
 
 ## What Steno does
 
@@ -16,7 +17,8 @@ Steno is designed around a simple content pipeline:
 5. Write the generated pages to `dist/`
 6. Copy theme assets into `dist/assets/`
 
-That makes it a good fit for blogs, documentation sites, small marketing sites, and theme-driven static websites.
+That makes it a good fit for blogs, documentation sites, small marketing sites,
+and theme-driven static websites.
 
 ## Features
 
@@ -117,7 +119,8 @@ deno run -A ./mod.ts --help
 
 ## Configuration
 
-Steno loads config from YAML or TOML. The default path is `content/.steno/config.yml`.
+Steno loads config from YAML or TOML. The default path is
+`content/.steno/config.yml`.
 
 Supported top-level fields used by the current runtime include:
 
@@ -230,7 +233,8 @@ The default layout name is `layout` when frontmatter does not specify one.
 
 ## Development workflow
 
-The repo is structured so that the root package points at `mod.ts`, while the sandbox app lives under `test/`.
+The repo is structured so that the root package points at `mod.ts`, while the
+sandbox app lives under `test/`.
 
 - `deno task dev` delegates to `test/`
 - `deno task test` runs the root `test.ts` harness

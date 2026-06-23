@@ -1,6 +1,6 @@
 import { render } from "../scribe.ts";
 import type { StenoTheme } from "./types.ts";
-import { join, dirname } from "@std/path";
+import { dirname, join } from "@std/path";
 import { ensureDirSync } from "../fileUtils.ts";
 import { parse as parseYaml } from "@std/yaml";
 

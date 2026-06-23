@@ -3,7 +3,7 @@ import { parseFrontmatter } from "./frontmatter.ts";
 
 export function registerFrontmatterTests(): void {
   Deno.test("frontmatter: parses YAML frontmatter", () => {
-    const input = `---\ntitle: Hello\nauthor: Dev\n---\n\nBody text`; 
+    const input = `---\ntitle: Hello\nauthor: Dev\n---\n\nBody text`;
     const parsed = parseFrontmatter(input);
 
     assertEquals(parsed.frontmatter.title, "Hello");
@@ -12,7 +12,7 @@ export function registerFrontmatterTests(): void {
   });
 
   Deno.test("frontmatter: parses TOML frontmatter", () => {
-    const input = `+++\ntitle = "Hello"\nauthor = "Dev"\n+++\n\nBody text`; 
+    const input = `+++\ntitle = "Hello"\nauthor = "Dev"\n+++\n\nBody text`;
     const parsed = parseFrontmatter(input);
 
     assertEquals(parsed.frontmatter.title, "Hello");
@@ -27,4 +27,3 @@ export function registerFrontmatterTests(): void {
     assertEquals(parsed.body, "Just markdown body");
   });
 }
-

@@ -1,6 +1,8 @@
 {
   "name": "@steno/steno",
   "exports": "./mod.ts",
+  "version": "0.1.0",
+  "license": "MIT",
   "tasks": {
     "dev": "deno task --cwd test dev",
     "test": "deno test -A ./test.ts"

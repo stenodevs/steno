@@ -6,9 +6,9 @@ import { parseFrontmatter } from "./src/frontmatter.ts";
 import { startDevServer } from "./src/server.ts";
 import { parseCliArgs, printHelp } from "./src/cli.ts";
 import { marked } from "marked";
-import { join, dirname } from "@std/path";
+import { dirname, join } from "@std/path";
 
-export { render, filters } from "./src/scribe.ts";
+export { filters, render } from "./src/scribe.ts";
 export type { StenoTheme } from "./src/theme/types.ts";
 export { Theme } from "./src/theme/theme.ts";
 
@@ -18,7 +18,10 @@ export class Steno {
   private themeLoadingPromise: Promise<void>;
   private autoBuildOnInit: boolean;
 
-  constructor(configPath: string = "content/.steno/config.yml", autoBuildOnInit = true) {
+  constructor(
+    configPath: string = "content/.steno/config.yml",
+    autoBuildOnInit = true,
+  ) {
     this.config = loadConfig(configPath);
     this.autoBuildOnInit = autoBuildOnInit;
     this.themeLoadingPromise = this.loadTheme();
@@ -35,8 +38,7 @@ export class Steno {
 
     try {
       // Determine if the theme path refers to a local file or directory
-      const isLocalPath =
-        themeName.startsWith(".") ||
+      const isLocalPath = themeName.startsWith(".") ||
         themeName.startsWith("/") ||
         themeName.startsWith("file://");
 
@@ -141,7 +143,10 @@ export class Steno {
           const htmlContent = await marked.parse(body);
 
           // Determine output file path
-          let outputFilePath = join(outputDir, entryRelPath.replace(/\.md$/, ".html"));
+          let outputFilePath = join(
+            outputDir,
+            entryRelPath.replace(/\.md$/, ".html"),
+          );
           if (this.config.custom?.shortUrls) {
             if (entryRelPath !== "index.md") {
               const cleanRelPath = entryRelPath.replace(/\.md$/, "");
@@ -163,17 +168,17 @@ export class Steno {
           // Render using the theme's layout if available
           const renderedContent = this.theme
             ? await this.theme.renderLayout(layoutName, htmlContent, {
-                site: {
-                  ...this.config,
-                },
-                theme: {
-                  name: this.theme.name,
-                  version: this.theme.version,
-                  ...this.theme.config,
-                },
-                title: frontmatter.title || this.config.title,
-                ...frontmatter,
-              })
+              site: {
+                ...this.config,
+              },
+              theme: {
+                name: this.theme.name,
+                version: this.theme.version,
+                ...this.theme.config,
+              },
+              title: frontmatter.title || this.config.title,
+              ...frontmatter,
+            })
             : htmlContent;
 
           // Write the rendered content to the output file

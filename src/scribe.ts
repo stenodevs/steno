@@ -259,7 +259,9 @@ class ScribeParser {
 
     const asIndex = rawEach.indexOf(" as ");
     if (asIndex === -1) {
-      throw new Error(`Invalid each block syntax: "${rawEach}". Expected "as" keyword.`);
+      throw new Error(
+        `Invalid each block syntax: "${rawEach}". Expected "as" keyword.`,
+      );
     }
     const array = rawEach.substring(0, asIndex).trim();
     const itemPart = rawEach.substring(asIndex + 4).trim();
@@ -354,7 +356,9 @@ class ScribeParser {
           braceCount++;
         } else if (char === "}") {
           braceCount--;
-        } else if (char === "/" && this.input[this.pos + 1] === ">" && braceCount === 0) {
+        } else if (
+          char === "/" && this.input[this.pos + 1] === ">" && braceCount === 0
+        ) {
           break;
         }
       }
@@ -439,7 +443,8 @@ function compileNodes(nodes: Node[]): string {
       }
       code += `}\n`;
     } else if (node.type === "each") {
-      code += `if (${node.array} && typeof ${node.array}[Symbol.iterator] === 'function') {\n`;
+      code +=
+        `if (${node.array} && typeof ${node.array}[Symbol.iterator] === 'function') {\n`;
       if (node.indexVar) {
         code += `  let ${node.indexVar} = 0;\n`;
       }
@@ -456,7 +461,9 @@ function compileNodes(nodes: Node[]): string {
         propsPairs.push(`${JSON.stringify(propName)}: ${expr}`);
       }
       const propsObj = `{ ${propsPairs.join(", ")} }`;
-      code += `html.push(helpers.renderComponent(${JSON.stringify(node.componentName)}, ${propsObj}, context));\n`;
+      code += `html.push(helpers.renderComponent(${
+        JSON.stringify(node.componentName)
+      }, ${propsObj}, context));\n`;
     }
   }
   return code;
@@ -476,7 +483,11 @@ export function compileToFunction(template: string): CompiledTemplateFn {
   `;
 
   try {
-    return new Function("context", "helpers", functionCode) as CompiledTemplateFn;
+    return new Function(
+      "context",
+      "helpers",
+      functionCode,
+    ) as CompiledTemplateFn;
   } catch (err) {
     console.error("Failed to compile template:", functionCode);
     throw err;
@@ -502,7 +513,9 @@ export function render(options: ScribeOptions): string {
 
       if (componentTemplate === undefined) {
         throw new Error(
-          `Component "${name}" not found. Available components: ${Object.keys(options.components).join(", ")}`
+          `Component "${name}" not found. Available components: ${
+            Object.keys(options.components).join(", ")
+          }`,
         );
       }
 

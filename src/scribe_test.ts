@@ -1,4 +1,4 @@
-import { assertEquals, assertStringIncludes } from "@std/assert";
+import { assertEquals, assertStringIncludes, assertThrows } from "@std/assert";
 import { render } from "./scribe.ts";
 
 export function registerScribeTests(): void {
@@ -39,5 +39,29 @@ export function registerScribeTests(): void {
     });
 
     assertEquals(output, "<h1>Hello</h1>");
+  });
+
+  Deno.test("scribe: parse error includes filePath and line/col in message", () => {
+    // {#each} without "as" keyword triggers a parse error after consuming the block header
+    const template = `{#each items}{/each}`;
+    const err = assertThrows(
+      () => render({ template, context: {}, components: {}, filePath: "layouts/post.scr" }),
+      Error,
+    );
+    assertStringIncludes(err.message, "layouts/post.scr");
+    // line 1, col is past the consumed "{#each items}" token
+    assertStringIncludes(err.message, ":1:");
+    assertStringIncludes(err.message, 'Expected "as" keyword');
+  });
+
+  Deno.test("scribe: parse error without filePath falls back to Line/col prefix", () => {
+    const template = `line one\n{#each items}{/each}`;
+    const err = assertThrows(
+      () => render({ template, context: {}, components: {} }),
+      Error,
+    );
+    // no filePath → "Line N, col M:" prefix
+    assertStringIncludes(err.message, "Line 2");
+    assertStringIncludes(err.message, 'Expected "as" keyword');
   });
 }

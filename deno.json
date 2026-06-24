@@ -7,6 +7,7 @@
   "publish": {
     "exclude": [
       ".github",
+      "docs",
       "test",
       "test.ts",
       "**/*_test.ts"
@@ -21,7 +22,6 @@
     "@std/path": "jsr:@std/path@1",
     "@std/toml": "jsr:@std/toml@1",
     "@std/yaml": "jsr:@std/yaml@1",
-    "marked": "npm:marked@15.0.4"
-  },
-  "workspace": ["./test"]
+    "marked": "npm:marked@latest"
+  }
 }

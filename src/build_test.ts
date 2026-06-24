@@ -5,7 +5,7 @@ import { Steno } from "../mod.ts";
 export function registerBuildTests(): void {
   Deno.test({
     name: "build: end-to-end pipeline build",
-    permissions: { read: true, write: true },
+    permissions: { read: true, write: true, net: true },
     fn: async () => {
       const tempDir = Deno.makeTempDirSync();
 

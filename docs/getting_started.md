@@ -4,7 +4,7 @@ This guide will help you set up your first static site using Steno.
 
 ## Prerequisites
 
-*   **Deno:** Ensure you have Deno installed. You can download it from [deno.land](https://deno.land/).
+*   **Deno:** Ensure you have Deno installed. You can download it from [deno.com](https://deno.com/).
 
 ## 1. Create a New Project
 
@@ -127,7 +127,7 @@ custom:
 Now you're ready to build your site! You'll need to run Steno with the appropriate Deno permissions.
 
 ```bash
-deno run -A --unstable https://deno.land/x/steno/mod.ts build --config content/.steno/config.yml
+deno run -A --unstable jsr:@steno/steno build --config content/.steno/config.yml
 ```
 
 This command will:

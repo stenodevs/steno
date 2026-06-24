@@ -60,7 +60,7 @@ We appreciate code contributions! To contribute code, please follow these steps:
 
 ## Code Style
 
-*   Follow the [Deno Style Guide](https://deno.land/manual@v1.38.5/references/contributing/style_guide).
+*   Follow the [Deno Style Guide](https://docs.deno.com/runtime/contributing/style_guide/).
 *   Use `deno fmt` to automatically format your code.
 *   Use `deno lint` to catch potential issues.
 

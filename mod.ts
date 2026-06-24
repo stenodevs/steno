@@ -23,7 +23,7 @@ import { parseFrontmatter } from "./src/frontmatter.ts";
 import { startDevServer } from "./src/server.ts";
 import { parseCliArgs, printHelp } from "./src/cli.ts";
 import { marked } from "marked";
-import { dirname, join, isAbsolute } from "@std/path";
+import { dirname, isAbsolute, join } from "@std/path";
 
 export { filters, render } from "./src/scribe.ts";
 export type { ScribeOptions } from "./src/scribe.ts";
@@ -109,7 +109,9 @@ export class Steno {
         // Otherwise, import as a standard Deno file module
         let resolvedPath = themeName.startsWith("file://")
           ? themeName
-          : `file://${isAbsolute(themeName) ? themeName : join(Deno.cwd(), themeName)}`;
+          : `file://${
+            isAbsolute(themeName) ? themeName : join(Deno.cwd(), themeName)
+          }`;
 
         try {
           const stat = Deno.statSync(new URL(resolvedPath));
@@ -175,7 +177,10 @@ export class Steno {
           const fileContents = Deno.readTextFileSync(fullPath);
 
           // Parse frontmatter and content body
-          const { frontmatter, body } = parseFrontmatter(fileContents, fullPath);
+          const { frontmatter, body } = parseFrontmatter(
+            fileContents,
+            fullPath,
+          );
 
           // Convert Markdown to HTML
           const htmlContent = await marked.parse(body);

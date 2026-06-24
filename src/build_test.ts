@@ -107,7 +107,9 @@ Welcome to my blog.
       assertStringIncludes(postHtml, "Welcome to my blog.");
 
       // Asset assertion
-      const css = Deno.readTextFileSync(join(outputDir, "assets", "global.css"));
+      const css = Deno.readTextFileSync(
+        join(outputDir, "assets", "global.css"),
+      );
       assertEquals(css, "body { margin: 0; }");
 
       // Clean up

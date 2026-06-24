@@ -45,7 +45,13 @@ export function registerScribeTests(): void {
     // {#each} without "as" keyword triggers a parse error after consuming the block header
     const template = `{#each items}{/each}`;
     const err = assertThrows(
-      () => render({ template, context: {}, components: {}, filePath: "layouts/post.scr" }),
+      () =>
+        render({
+          template,
+          context: {},
+          components: {},
+          filePath: "layouts/post.scr",
+        }),
       Error,
     );
     assertStringIncludes(err.message, "layouts/post.scr");

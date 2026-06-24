@@ -6,7 +6,6 @@ import { registerScribeTests } from "./src/scribe_test.ts";
 import { registerThemeTests } from "./src/theme/theme_test.ts";
 import { registerBuildTests } from "./src/build_test.ts";
 
-
 registerCliTests();
 registerConfigTests();
 registerFileUtilsTests();

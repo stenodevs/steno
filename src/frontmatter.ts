@@ -41,10 +41,9 @@ export function parseFrontmatter(
         );
       }
     }
-    const normalizedFrontmatter =
-      frontmatter && typeof frontmatter === "object"
-        ? (frontmatter as Record<string, unknown>)
-        : {};
+    const normalizedFrontmatter = frontmatter && typeof frontmatter === "object"
+      ? (frontmatter as Record<string, unknown>)
+      : {};
     return { frontmatter: normalizedFrontmatter, body };
   }
   return { frontmatter: {}, body: content };

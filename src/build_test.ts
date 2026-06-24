@@ -176,7 +176,7 @@ Content
       const steno = new Steno(configPath, false);
       const err = await assertRejects(() => steno.build());
       assertStringIncludes((err as Error).message, layoutPath);
-      // Expected layoutPath:3:1: Expected "{/each}"
+      // Expected layoutPath:7:8: Expected "{/each}"
       assertStringIncludes((err as Error).message, "7:8");
 
       // Clean up

@@ -26,18 +26,18 @@ export class OnboardingError extends Error {
 const ESC = "\x1b[";
 
 const c = {
-  reset:       `${ESC}0m`,
-  bold:        `${ESC}1m`,
-  dim:         `${ESC}2m`,
-  purple:      `${ESC}38;5;135m`,
-  purpleBold:  `${ESC}1;38;5;135m`,
-  white:       `${ESC}97m`,
-  whiteBold:   `${ESC}1;97m`,
-  gray:        `${ESC}38;5;245m`,
-  green:       `${ESC}38;5;120m`,
-  yellow:      `${ESC}38;5;222m`,
-  cyan:        `${ESC}38;5;159m`,
-  cyanBold:    `${ESC}1;38;5;159m`,
+  reset: `${ESC}0m`,
+  bold: `${ESC}1m`,
+  dim: `${ESC}2m`,
+  purple: `${ESC}38;5;135m`,
+  purpleBold: `${ESC}1;38;5;135m`,
+  white: `${ESC}97m`,
+  whiteBold: `${ESC}1;97m`,
+  gray: `${ESC}38;5;245m`,
+  green: `${ESC}38;5;120m`,
+  yellow: `${ESC}38;5;222m`,
+  cyan: `${ESC}38;5;159m`,
+  cyanBold: `${ESC}1;38;5;159m`,
 };
 
 function paint(color: string, text: string): string {
@@ -64,7 +64,9 @@ function printBanner(): void {
     console.log(paint(c.purpleBold, row));
   }
   console.log();
-  console.log(paint(c.gray, "  The fast, flexible static site generator for Deno"));
+  console.log(
+    paint(c.gray, "  The fast, flexible static site generator for Deno"),
+  );
   console.log();
 }
 
@@ -79,7 +81,7 @@ function toYamlString(value: string): string {
 
 function promptWithDefault(label: string, defaultValue: string): string {
   const arrow = paint(c.purple, "›");
-  const def   = paint(c.gray, `(${defaultValue})`);
+  const def = paint(c.gray, `(${defaultValue})`);
   const value = prompt(`  ${arrow} ${label} ${def}`)?.trim();
   return value && value.length > 0 ? value : defaultValue;
 }
@@ -87,16 +89,29 @@ function promptWithDefault(label: string, defaultValue: string): string {
 function selectTheme(): "starter" {
   heading("Choose a Theme");
   console.log();
-  console.log(`  ${paint(c.purple, "1)")} Starter Theme  ${paint(c.green, "✔ available")}`);
-  console.log(`  ${paint(c.gray,   "2)")} ${paint(c.dim, "More themes    coming soon…")}`);
+  console.log(
+    `  ${paint(c.purple, "1)")} Starter Theme  ${
+      paint(c.green, "✔ available")
+    }`,
+  );
+  console.log(
+    `  ${paint(c.gray, "2)")} ${paint(c.dim, "More themes    coming soon…")}`,
+  );
 
   while (true) {
     const arrow = paint(c.purple, "›");
-    const selection = prompt(`\n  ${arrow} Select theme ${paint(c.gray, "[1]")}`)?.trim() || "1";
+    const selection =
+      prompt(`\n  ${arrow} Select theme ${paint(c.gray, "[1]")}`)?.trim() ||
+      "1";
 
     if (selection === "1") return "starter";
     if (selection === "2") {
-      console.log(paint(c.yellow, "\n  ⚠  That theme isn't available yet — please pick Starter (1)."));
+      console.log(
+        paint(
+          c.yellow,
+          "\n  ⚠  That theme isn't available yet — please pick Starter (1).",
+        ),
+      );
       continue;
     }
     console.log(paint(c.yellow, "\n  ⚠  Invalid choice. Enter 1 to continue."));
@@ -146,26 +161,28 @@ export async function runOnboarding(
   heading("Project Details");
   console.log(paint(c.gray, "  Press Enter to accept the defaults.\n"));
 
-  const title       = options.title       ?? promptWithDefault("Site title",       "My Steno Site");
-  const description = options.description ?? promptWithDefault("Site description", "A site built with Steno");
-  const author      = options.author      ?? promptWithDefault("Author",           "Your Name");
-  const _theme      = options.theme       ?? selectTheme();
+  const title = options.title ??
+    promptWithDefault("Site title", "My Steno Site");
+  const description = options.description ??
+    promptWithDefault("Site description", "A site built with Steno");
+  const author = options.author ?? promptWithDefault("Author", "Your Name");
+  const _theme = options.theme ?? selectTheme();
 
-  const contentDir         = join(projectRoot, "content");
-  const stenoConfigDir     = join(contentDir, ".steno");
-  const configPath         = join(stenoConfigDir, "config.yml");
-  const homePagePath       = join(contentDir, "index.md");
-  const themeDir           = join(projectRoot, "themes", "starter");
-  const themeLayoutsDir    = join(themeDir, "layouts");
+  const contentDir = join(projectRoot, "content");
+  const stenoConfigDir = join(contentDir, ".steno");
+  const configPath = join(stenoConfigDir, "config.yml");
+  const homePagePath = join(contentDir, "index.md");
+  const themeDir = join(projectRoot, "themes", "starter");
+  const themeLayoutsDir = join(themeDir, "layouts");
   const themeComponentsDir = join(themeDir, "components");
-  const themeAssetsDir     = join(themeDir, "assets");
-  const themeConfigPath    = join(themeDir, "theme.yaml");
-  const layoutPath         = join(themeLayoutsDir, "layout.scr");
-  const headerPath         = join(themeComponentsDir, "header.scr");
-  const footerPath         = join(themeComponentsDir, "footer.scr");
-  const stylesheetPath     = join(themeAssetsDir, "style.css");
-  const entryPath          = join(projectRoot, "mod.ts");
-  const denoJsonPath       = join(projectRoot, "deno.json");
+  const themeAssetsDir = join(themeDir, "assets");
+  const themeConfigPath = join(themeDir, "theme.yaml");
+  const layoutPath = join(themeLayoutsDir, "layout.scr");
+  const headerPath = join(themeComponentsDir, "header.scr");
+  const footerPath = join(themeComponentsDir, "footer.scr");
+  const stylesheetPath = join(themeAssetsDir, "style.css");
+  const entryPath = join(projectRoot, "mod.ts");
+  const denoJsonPath = join(projectRoot, "deno.json");
 
   if (!options.force) {
     checkOverwrite([
@@ -340,15 +357,29 @@ new Steno();
 
   // success
 
-  console.log(`  ${paint(c.green, "✔")} Config   → ${paint(c.gray, configPath)}`);
-  console.log(`  ${paint(c.green, "✔")} Content  → ${paint(c.gray, homePagePath)}`);
+  console.log(
+    `  ${paint(c.green, "✔")} Config   → ${paint(c.gray, configPath)}`,
+  );
+  console.log(
+    `  ${paint(c.green, "✔")} Content  → ${paint(c.gray, homePagePath)}`,
+  );
   console.log(`  ${paint(c.green, "✔")} Theme    → ${paint(c.gray, themeDir)}`);
 
   console.log();
-  console.log(`${paint(c.purpleBold, "◆")} ${paint(c.whiteBold, "You're all set!")}`);
+  console.log(
+    `${paint(c.purpleBold, "◆")} ${paint(c.whiteBold, "You're all set!")}`,
+  );
   console.log();
-  console.log(`  ${paint(c.cyanBold, "deno task build")}   ${paint(c.gray, "# build the site into dist/")}`);
-  console.log(`  ${paint(c.cyanBold, "deno task dev")}     ${paint(c.gray, "# start live-reload dev server")}`);
+  console.log(
+    `  ${paint(c.cyanBold, "deno task build")}   ${
+      paint(c.gray, "# build the site into dist/")
+    }`,
+  );
+  console.log(
+    `  ${paint(c.cyanBold, "deno task dev")}     ${
+      paint(c.gray, "# start live-reload dev server")
+    }`,
+  );
   console.log();
 
   await Promise.resolve();

@@ -2,9 +2,7 @@ import { assertEquals, assertMatch, assertRejects } from "@std/assert";
 import { join } from "@std/path";
 import { OnboardingError, runOnboarding } from "./src/onboarding.ts";
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+// helpers
 
 async function scaffold(
   opts: Parameters<typeof runOnboarding>[1] = {},
@@ -33,9 +31,7 @@ function fileExists(dir: string, ...segments: string[]): boolean {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
+// tetsd
 
 Deno.test("onboarding: scaffolds all expected files", async () => {
   const dir = await scaffold();
@@ -138,7 +134,7 @@ Deno.test("onboarding: throws OnboardingError when files exist (no force)", asyn
 Deno.test("onboarding: --force allows overwrite of existing files", async () => {
   const dir = await scaffold();
 
-  // Should not throw
+  // should not throw
   await runOnboarding(dir, {
     title: "Overwritten",
     description: "Overwrite test",
@@ -156,7 +152,6 @@ Deno.test("onboarding: --force allows overwrite of existing files", async () => 
 Deno.test("onboarding: does not overwrite existing mod.ts or deno.json", async () => {
   const dir = await Deno.makeTempDir({ prefix: "steno_init_preexist_" });
 
-  // Pre-create both files with sentinel content
   Deno.writeTextFileSync(join(dir, "mod.ts"), "// custom entry\n");
   Deno.writeTextFileSync(join(dir, "deno.json"), '{"custom":true}\n');
 
@@ -172,4 +167,3 @@ Deno.test("onboarding: does not overwrite existing mod.ts or deno.json", async (
 
   await Deno.remove(dir, { recursive: true });
 });
-

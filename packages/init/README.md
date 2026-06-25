@@ -1,6 +1,7 @@
 # @steno/init
 
-Interactive scaffolder for new [Steno](https://jsr.io/@steno/steno) static-site projects.
+Interactive scaffolder for new [Steno](https://jsr.io/@steno/steno) static-site
+projects.
 
 ## Usage
 
@@ -13,7 +14,7 @@ The wizard asks for:
 - **Site title**
 - **Site description**
 - **Author name**
-- **Theme** — choose *Starter Theme* (more coming soon)
+- **Theme** — choose _Starter Theme_ (more coming soon)
 
 It then generates the following structure in your current directory:
 
@@ -47,4 +48,3 @@ deno task dev     # start the live-reload dev server
 ## License
 
 MIT
-

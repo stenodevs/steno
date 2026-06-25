@@ -10,7 +10,8 @@
       "docs",
       "test",
       "test.ts",
-      "**/*_test.ts"
+      "**/*_test.ts",
+      "packages"
     ]
   },
   "tasks": {

@@ -58,7 +58,13 @@ deno run -A ./mod.ts build
 
 ## Quick start
 
-Create the default config file at `content/.steno/config.yml`:
+Scaffold a new site with the interactive init package:
+
+```sh
+deno run -Ar jsr:@steno/init
+```
+
+Or create the default config file manually at `content/.steno/config.yml`:
 
 ```yaml
 title: My site

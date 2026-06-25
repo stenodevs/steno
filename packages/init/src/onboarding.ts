@@ -45,28 +45,9 @@ function paint(color: string, text: string): string {
 }
 
 function printBanner(): void {
-  const rows = [
-    "            @@@@@@@@@@@@@@@@        @@@@@@@@@@@@@@            ",
-    "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
-    "@@@@@@@@@@@@@@         @@@@@@@@@@@@@@        @@@@@@@@@@@@@@@",
-    "@@@       @@@@@@@  @@@@@@@        @@@  @@@@  @@@         @@@",
-    "@@@  @@@@@@@@@@@@  @@@@@@@  @@@@@@@@@  @@@@  @@@  @@@@@  @@@",
-    "@@@  @@@@@@@@@@@@  @@@@@@@   @@@@@@@@  @@@@  @@@  @@@@@  @@@",
-    "@@@       @@@@@@@  @@@@@@@        @@@  @@@@  @@@  @@@@@  @@@",
-    "@@@@@@@@  @@@@@@@  @@@@@@@  @@@@@@@@@@@@@@@@@@@@  @@@@@  @@@",
-    "@@@       @@@@@@@@@@@@@@@@        @@@        @@@         @@@",
-    "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@        @@@@@@@@@@@@@@@",
-    "@@@@@@@@@@@@@@         @@@@@@@@@@@@@@         @@@@@@@@@@@@@@",
-  ];
-
+  const line = "  Steno  ✦  A fast Deno-powered static site generator.  ";
   console.log();
-  for (const row of rows) {
-    console.log(paint(c.purpleBold, row));
-  }
-  console.log();
-  console.log(
-    paint(c.gray, "  The fast, flexible static site generator for Deno"),
-  );
+  console.log(`${ESC}48;5;91m${ESC}1;97m${line}${c.reset}`);
   console.log();
 }
 

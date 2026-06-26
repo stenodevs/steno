@@ -325,8 +325,8 @@ new Steno();
       denoJsonPath,
       `{
   "tasks": {
-    "build": "deno run -A ./mod.ts build",
-    "dev": "deno run -A ./mod.ts dev"
+    "build": "deno run -A jsr:@steno/steno build",
+    "dev": "deno run -A jsr:@steno/steno dev"
   },
   "imports": {
     "@steno/steno": "jsr:@steno/steno@^0.1.0"

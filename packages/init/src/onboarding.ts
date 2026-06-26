@@ -1,3 +1,12 @@
+/**
+ * @steno/init/onboarding — Core logic for scaffolding new Steno static-site projects.
+ *
+ * This module contains the interactive prompts and file generation logic
+ * for setting up a new Steno project.
+ *
+ * @module
+ */
+
 import { join, relative } from "@std/path";
 
 /** Options that can be passed directly to {@link runOnboarding}. When a field
@@ -133,6 +142,14 @@ function checkOverwrite(paths: string[]): void {
   }
 }
 
+/**
+ * Runs the interactive onboarding process to scaffold a new Steno project.
+ *
+ * @param projectRoot The root directory where the new project will be created.
+ * @param options Optional project configuration to bypass interactive prompts.
+ * @returns A promise that resolves when the scaffolding is complete.
+ * @throws {OnboardingError} if files already exist and `force` is not true.
+ */
 export async function runOnboarding(
   projectRoot: string = Deno.cwd(),
   options: ProjectOptions = {},

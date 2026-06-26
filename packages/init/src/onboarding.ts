@@ -74,7 +74,13 @@ function printBanner(): void {
   if (current) lines.push(current);
 
 
-  const termWidth = Deno.consoleSize().columns;
+  const termWidth = (() => {
+    try {
+      return Deno.consoleSize().columns;
+    } catch {
+      return 80;
+    }
+  })();
   const leftPad = Math.floor((termWidth - logoWidth) / 2);
   const p = " ".repeat(leftPad);
 

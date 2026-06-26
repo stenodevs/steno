@@ -45,9 +45,45 @@ function paint(color: string, text: string): string {
 }
 
 function printBanner(): void {
-  const line = "  Steno  ✦  A fast Deno-powered static site generator.  ";
+  const logo = [
+    `   \x1b[32mTTTTT\x1b[0m    \x1b[31mNNNN\x1b[0m`,
+    ` \x1b[35mSSS\x1b[0m \x1b[32mT\x1b[0m \x1b[33mEEEE\x1b[0m \x1b[31mN  N\x1b[0m \x1b[34mOOOO\x1b[0m`,
+    `\x1b[35mS\x1b[0m    \x1b[32mT\x1b[0m \x1b[33mE\x1b[0m    \x1b[31mN  N\x1b[0m \x1b[34mO  O\x1b[0m`,
+    ` \x1b[35mSS\x1b[0m  \x1b[32mT\x1b[0m \x1b[33mEEE\x1b[0m  \x1b[31mN  N\x1b[0m \x1b[34mO  O\x1b[0m`,
+    `   \x1b[35mS\x1b[0m \x1b[32mT\x1b[0m \x1b[33mE\x1b[0m    \x1b[31mN  N\x1b[0m \x1b[34mO  O\x1b[0m`,
+    `\x1b[35mSSS\x1b[0m    \x1b[33mEEEE\x1b[0m      \x1b[34mOOOO\x1b[0m`,
+  ];
+
+  const stripAnsi = (s: string) => s.replace(/\x1b\[[0-9;]*m/g, "");
+  const logoWidth = Math.max(...logo.map((l) => stripAnsi(l).length));
+
+  const tagline = "A fast Deno-powered static site generator";
+  const words = tagline.split(" ");
+  const lines: string[] = [];
+  let current = "";
+
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length <= logoWidth) {
+      current = next;
+    } else {
+      if (current) lines.push(current);
+      current = word;
+    }
+  }
+  if (current) lines.push(current);
+
+
+  const termWidth = Deno.consoleSize().columns;
+  const leftPad = Math.floor((termWidth - logoWidth) / 2);
+  const p = " ".repeat(leftPad);
+
+  for (const line of logo) console.log(p + line);
   console.log();
-  console.log(`${ESC}48;5;91m${ESC}1;97m${line}${c.reset}`);
+  for (const line of lines) {
+    const pad = Math.floor((logoWidth - line.length) / 2);
+    console.log(paint(c.gray, p + " ".repeat(pad) + line));
+  }
   console.log();
 }
 

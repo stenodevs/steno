@@ -1,3 +1,11 @@
+/**
+ * @steno/init/create — CLI entrypoint for scaffolding new Steno static-site projects.
+ *
+ * This module handles command-line argument parsing and initiates the onboarding process.
+ *
+ * @module
+ */
+
 import { parseArgs } from "@std/cli/parse-args";
 import { OnboardingError, runOnboarding } from "./onboarding.ts";
 

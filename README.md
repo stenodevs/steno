@@ -53,7 +53,7 @@ For local development inside this repo, the current workflow is:
 ```sh
 deno task dev
 deno task test
-deno run -A ./mod.ts build
+deno run -A jsr:@steno/steno build
 ```
 
 ## Quick start
@@ -97,13 +97,13 @@ Welcome to Steno.
 Then build the site:
 
 ```sh
-deno run -A ./mod.ts build --config content/.steno/config.yml
+deno run -A jsr:@steno/steno build --config content/.steno/config.yml
 ```
 
 Or start the dev server with live reload:
 
 ```sh
-deno run -A ./mod.ts dev --config content/.steno/config.yml
+deno run -A jsr:@steno/steno dev --config content/.steno/config.yml
 ```
 
 ## CLI
@@ -123,11 +123,11 @@ Steno’s CLI is implemented in `src/cli.ts` and used by `mod.ts`.
 ### Examples
 
 ```sh
-deno run -A ./mod.ts
-deno run -A ./mod.ts build
-deno run -A ./mod.ts dev
-deno run -A ./mod.ts build --config content/.steno/config.yml
-deno run -A ./mod.ts --help
+deno run -A jsr:@steno/steno
+deno run -A jsr:@steno/steno build
+deno run -A jsr:@steno/steno dev
+deno run -A jsr:@steno/steno build --config content/.steno/config.yml
+deno run -A jsr:@steno/steno --help
 ```
 
 ## Configuration

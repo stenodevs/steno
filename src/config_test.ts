@@ -1,6 +1,6 @@
 import { assertEquals, assertThrows } from "@std/assert";
 import { join } from "@std/path";
-import { loadConfig } from "./config.ts";
+import { loadConfig, loadPlugins } from "./config.ts";
 
 export function registerConfigTests(): void {
   Deno.test({
@@ -52,6 +52,22 @@ export function registerConfigTests(): void {
         Error,
         "Unsupported config file format",
       );
+    },
+  });
+
+  Deno.test({
+    name: "config: loadPlugins returns [] when plugins field is absent",
+    fn: async () => {
+      const result = await loadPlugins({ title: "", description: "", author: "" });
+      assertEquals(result, []);
+    },
+  });
+
+  Deno.test({
+    name: "config: loadPlugins returns [] when plugins array is empty",
+    fn: async () => {
+      const result = await loadPlugins({ title: "", description: "", author: "", plugins: [] });
+      assertEquals(result, []);
     },
   });
 }

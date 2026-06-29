@@ -109,4 +109,58 @@ export function registerThemeTests(): void {
       assertEquals(theme.config.author, "override");
     },
   });
+
+  Deno.test("theme: plugins defaults to empty array when not provided", () => {
+    const theme = new Theme({
+      name: "minimal",
+      version: "1.0.0",
+      layouts: { layout: `{@html content}` },
+    });
+
+    assertEquals(theme.plugins, []);
+  });
+
+  Deno.test("theme: plugins are exposed from themeData", () => {
+    const plugin = { name: "test-plugin" };
+    const theme = new Theme({
+      name: "minimal",
+      version: "1.0.0",
+      layouts: { layout: `{@html content}` },
+      plugins: [plugin],
+    });
+
+    assertEquals(theme.plugins.length, 1);
+    assertEquals(theme.plugins[0].name, "test-plugin");
+  });
+
+  Deno.test("theme: schema defaults are applied when user config is missing fields", () => {
+    const theme = new Theme({
+      name: "minimal",
+      version: "1.0.0",
+      layouts: { layout: `{@html content}` },
+      configSchema: {
+        primaryColor: { type: "string", default: "#3b82f6" },
+        showFooter: { type: "boolean", default: true },
+      },
+    });
+
+    assertEquals(theme.config.primaryColor, "#3b82f6");
+    assertEquals(theme.config.showFooter, true);
+  });
+
+  Deno.test("theme: user config overrides schema defaults", () => {
+    const theme = new Theme(
+      {
+        name: "minimal",
+        version: "1.0.0",
+        layouts: { layout: `{@html content}` },
+        configSchema: {
+          primaryColor: { type: "string", default: "#3b82f6" },
+        },
+      },
+      { primaryColor: "#ff0000" },
+    );
+
+    assertEquals(theme.config.primaryColor, "#ff0000");
+  });
 }

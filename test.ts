@@ -5,6 +5,7 @@ import { registerFrontmatterTests } from "./src/frontmatter_test.ts";
 import { registerScribeTests } from "./src/scribe_test.ts";
 import { registerThemeTests } from "./src/theme/theme_test.ts";
 import { registerBuildTests } from "./src/build_test.ts";
+import { registerPluginTests } from "./src/plugins_test.ts";
 
 registerCliTests();
 registerConfigTests();
@@ -13,3 +14,4 @@ registerFrontmatterTests();
 registerScribeTests();
 registerThemeTests();
 registerBuildTests();
+registerPluginTests();

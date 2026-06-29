@@ -24,6 +24,8 @@ import { parseFrontmatter } from "./src/frontmatter.ts";
 import { startDevServer } from "./src/server.ts";
 import { parseCliArgs, printHelp } from "./src/cli.ts";
 import { runAstTransforms, runHtmlTransforms } from "./src/plugins.ts";
+import { buildCollections, type CollectionMap } from "./src/collections.ts";
+export type { Collection, CollectionItem, CollectionMap } from "./src/collections.ts";
 import { marked } from "marked";
 import { dirname, isAbsolute, join } from "@std/path";
 
@@ -192,7 +194,7 @@ export class Steno {
    *
    * @returns A promise that resolves when the build is complete.
    */
-    public async build(): Promise<void> {
+  public async build(): Promise<void> {
     await this.themeLoadingPromise;
     await this.pluginsLoadingPromise;
 
@@ -203,6 +205,14 @@ export class Steno {
 
     ensureDirSync(outputDir);
 
+    // Pass 1: build collections
+    const collections: CollectionMap = await buildCollections(
+        contentDir,
+        this.config,
+        this.plugins,
+    );
+
+    // Pass 2: render pages
     const processDirectory = async (currentDir: string, relPath = "") => {
       for (const entry of Deno.readDirSync(currentDir)) {
         const fullPath = join(currentDir, entry.name);
@@ -215,19 +225,13 @@ export class Steno {
         } else if (entry.isFile && entry.name.endsWith(".md")) {
           const fileContents = Deno.readTextFileSync(fullPath);
 
-          // Parse frontmatter and content body
-          const { frontmatter, body } = parseFrontmatter(
-              fileContents,
-              fullPath,
-          );
+          const { frontmatter, body } = parseFrontmatter(fileContents, fullPath);
 
-          // plugins
           let tokens = marked.lexer(body);
           tokens = await runAstTransforms(tokens, this.plugins);
           let htmlContent = marked.parser(tokens);
           htmlContent = await runHtmlTransforms(htmlContent, this.plugins);
 
-          // Determine output file path
           let outputFilePath = join(
               outputDir,
               entryRelPath.replace(/\.md$/, ".html"),
@@ -245,38 +249,36 @@ export class Steno {
             ensureDirSync(dirname(outputFilePath));
           }
 
-          // Determine layout
           const layoutName = typeof frontmatter.layout === "string"
               ? frontmatter.layout
               : "layout";
 
-          // Render using the theme's layout if available
           const renderedContent = this.theme
-              ? await this.theme.renderLayout(layoutName, htmlContent, {
-                site: {
-                  ...this.config,
-                },
+              ? this.theme.renderLayout(layoutName, htmlContent, {
+                site: { ...this.config },
                 theme: {
                   name: this.theme.name,
                   version: this.theme.version,
                   ...this.theme.config,
                 },
+                collections, // ← injected here
                 title: frontmatter.title || this.config.title,
                 ...frontmatter,
               })
               : htmlContent;
 
-          // Write the rendered content to the output file
           Deno.writeTextFileSync(outputFilePath, renderedContent);
 
-          await this.hooks.afterPage?.({ path: outputFilePath, html: renderedContent });
+          await this.hooks.afterPage?.({
+            path: outputFilePath,
+            html: renderedContent,
+          });
         }
       }
     };
 
     await processDirectory(contentDir);
 
-    // Compile and copy theme assets if applicable
     if (this.theme) {
       await this.theme.copyAssets(outputDir);
     }

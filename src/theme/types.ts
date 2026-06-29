@@ -54,8 +54,14 @@ export interface StenoTheme {
   plugins?: StenoPlugin[];
 }
 
+/**
+ * Defines the structure for a single field in a theme's configuration schema.
+ */
 export interface ThemeConfigField {
+  /** The data type of the configuration field. */
   type: "string" | "number" | "boolean";
+  /** The default value for the configuration field if not provided by the user. */
   default?: unknown;
+  /** A human-readable description of the configuration field. */
   description?: string;
 }

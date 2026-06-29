@@ -35,8 +35,20 @@ export { Theme } from "./src/theme/theme.ts";
 export type { StenoPlugin } from "./src/plugins.ts";
 
 export interface StenoHooks {
+  /**
+   * Called before the build process starts.
+   * @param config The site configuration.
+   */
   beforeBuild?: (config: SiteConfig) => void | Promise<void>;
+  /**
+   * Called after each page has been rendered and written to the output directory.
+   * @param page An object containing the path to the output file and its HTML content.
+   */
   afterPage?: (page: { path: string; html: string }) => void | Promise<void>;
+  /**
+   * Called after the entire build process is complete.
+   * @param config The site configuration.
+   */
   afterBuild?: (config: SiteConfig) => void | Promise<void>;
 }
 
@@ -65,6 +77,7 @@ export class Steno {
    *
    * @param configPath Path to the site config file. Defaults to `"content/.steno/config.yml"`.
    * @param autoBuildOnInit If true, triggers a build immediately on instantiation unless running in dev mode.
+   * @param hooks Optional lifecycle hooks to tap into the build process.
    */
   constructor(
       configPath: string = "content/.steno/config.yml",

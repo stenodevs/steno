@@ -29,6 +29,7 @@ export class Theme {
   private themeData: StenoTheme;
   private layoutPaths: Record<string, string> = {};
   private componentPaths: Record<string, string> = {};
+  /** An array of plugins bundled with this theme. */
   public readonly plugins: StenoPlugin[];
 
   /**
@@ -52,6 +53,11 @@ export class Theme {
     };
   }
 
+  /**
+   * Resolves default values for theme configuration based on the provided schema.
+   * @param schema The theme configuration schema.
+   * @returns An object containing default values.
+   */
   private resolveSchemaDefaults(
     schema?: Record<string, ThemeConfigField>,
   ): ThemeConfig {
@@ -181,6 +187,7 @@ export class Theme {
    * @param content - The pre-rendered HTML body content.
    * @param variables - Object containing page-level variables.
    * @returns The rendered layout HTML string.
+   * @throws {Error} If the specified layout is not found in the theme.
    */
   public renderLayout(
     layoutName: string,
@@ -211,6 +218,7 @@ export class Theme {
    * @param componentName - The name of the component to render.
    * @param variables - Object containing variables for the component.
    * @returns The rendered component HTML string.
+   * @throws {Error} If the specified component is not found in the theme.
    */
   public renderComponent(
     componentName: string,
@@ -235,6 +243,7 @@ export class Theme {
    *
    * @param outputDir - The root output/dist directory path.
    * @returns A promise that resolves when copying is finished.
+   * @throws {Error} If an asset cannot be fetched or written to disk.
    */
   public async copyAssets(outputDir: string): Promise<void> {
     if (!this.themeData.assets) return;

@@ -13,6 +13,16 @@ const reloadScript = `
   </script>
 `;
 
+/**
+ * Starts a development server that serves static files from the output directory
+ * and rebuilds the site on file changes in the watch directory.
+ * It also injects a live-reload script into HTML files.
+ *
+ * @param outputDir The directory from which to serve the static files.
+ * @param buildFn A function to call to rebuild the site.
+ * @param watchDir The directory to watch for file changes. Defaults to "content".
+ * @returns A promise that resolves when the dev server starts.
+ */
 export async function startDevServer(
   outputDir: string,
   buildFn: () => void,

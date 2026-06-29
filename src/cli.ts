@@ -1,10 +1,22 @@
+/**
+ * Defines the structure for parsed command-line interface options.
+ */
 export interface CliOptions {
+  /** The command to execute, either "build", "dev", or "help". */
   command: "build" | "dev" | "help";
+  /** The path to the configuration file. */
   configPath: string;
 }
 
 const defaultConfigPath = "content/.steno/config.yml";
 
+/**
+ * Parses command-line arguments and returns a structured object of CLI options.
+ *
+ * @param args An array of command-line arguments (e.g., `Deno.args`).
+ * @returns An object containing the parsed command and configuration path.
+ * @throws {Error} If an unknown option or command is encountered, or if a required value is missing.
+ */
 export function parseCliArgs(args: string[]): CliOptions {
   let command: CliOptions["command"] = "build";
   let configPath = defaultConfigPath;
@@ -43,6 +55,9 @@ export function parseCliArgs(args: string[]): CliOptions {
   return { command, configPath };
 }
 
+/**
+ * Prints the help message for the Steno CLI.
+ */
 export function printHelp(): void {
   console.log(`
 steno - static site generator

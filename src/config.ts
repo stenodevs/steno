@@ -24,7 +24,7 @@ export interface SiteConfig {
 }
 
 export async function loadPlugins(
-    config: SiteConfig,
+  config: SiteConfig,
 ): Promise<StenoPlugin[]> {
   if (!config.plugins?.length) return [];
 
@@ -39,7 +39,9 @@ export async function loadPlugins(
       const factory = mod.default ?? mod;
 
       if (typeof factory !== "function") {
-        console.warn(`Plugin "${packageName}" does not export a default function, skipping.`);
+        console.warn(
+          `Plugin "${packageName}" does not export a default function, skipping.`,
+        );
         continue;
       }
 
@@ -60,7 +62,7 @@ export function loadConfig(configPath: string): SiteConfig {
     return parseToml(fileContents) as unknown as SiteConfig;
   } else {
     throw new Error(
-        `Unsupported config file format at "${configPath}". Please use .yaml, .yml, or .toml.`,
+      `Unsupported config file format at "${configPath}". Please use .yaml, .yml, or .toml.`,
     );
   }
 }

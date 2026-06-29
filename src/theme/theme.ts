@@ -1,9 +1,9 @@
 import { render } from "../scribe.ts";
-import type {StenoTheme, ThemeConfigField} from "./types.ts";
+import type { StenoTheme, ThemeConfigField } from "./types.ts";
 import { dirname, join } from "@std/path";
 import { ensureDirSync } from "../fileUtils.ts";
 import { parse as parseYaml } from "@std/yaml";
-import type {StenoPlugin} from "../plugins.ts";
+import type { StenoPlugin } from "../plugins.ts";
 
 type ThemeConfig = Record<string, unknown>;
 
@@ -12,7 +12,7 @@ interface ThemeDirectoryMetadata {
   version?: string;
   components?: Record<string, string>;
   defaultConfig?: ThemeConfig;
-  configSchema?: Record<string, ThemeConfigField>
+  configSchema?: Record<string, ThemeConfigField>;
 }
 
 /**
@@ -53,7 +53,7 @@ export class Theme {
   }
 
   private resolveSchemaDefaults(
-      schema?: Record<string, ThemeConfigField>,
+    schema?: Record<string, ThemeConfigField>,
   ): ThemeConfig {
     if (!schema) return {};
     const result: ThemeConfig = {};

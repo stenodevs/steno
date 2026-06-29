@@ -82,7 +82,6 @@ function printBanner(): void {
   }
   if (current) lines.push(current);
 
-
   const termWidth = (() => {
     try {
       return Deno.consoleSize().columns;

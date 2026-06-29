@@ -54,7 +54,6 @@ export class Steno {
   private plugins: StenoPlugin[] = [];
   private pluginsLoadingPromise: Promise<void>;
 
-
   /**
    * Creates a new Steno instance.
    *
@@ -81,7 +80,6 @@ export class Steno {
     const sitePlugins = await loadPlugins(this.config);
     this.plugins = [...(this.theme?.plugins ?? []), ...sitePlugins];
   }
-
 
   /**
    * Dynamically imports the JSR/NPM theme package, or loads a local
@@ -206,7 +204,6 @@ export class Steno {
           tokens = await runAstTransforms(tokens, this.plugins);
           let htmlContent = marked.parser(tokens);
           htmlContent = await runHtmlTransforms(htmlContent, this.plugins);
-
 
           // Determine output file path
           let outputFilePath = join(

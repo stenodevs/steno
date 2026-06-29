@@ -150,15 +150,15 @@ export function registerThemeTests(): void {
 
   Deno.test("theme: user config overrides schema defaults", () => {
     const theme = new Theme(
-        {
-          name: "minimal",
-          version: "1.0.0",
-          layouts: { layout: `{@html content}` },
-          configSchema: {
-            primaryColor: { type: "string", default: "#3b82f6" },
-          },
+      {
+        name: "minimal",
+        version: "1.0.0",
+        layouts: { layout: `{@html content}` },
+        configSchema: {
+          primaryColor: { type: "string", default: "#3b82f6" },
         },
-        { primaryColor: "#ff0000" },
+      },
+      { primaryColor: "#ff0000" },
     );
 
     assertEquals(theme.config.primaryColor, "#ff0000");

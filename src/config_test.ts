@@ -58,7 +58,11 @@ export function registerConfigTests(): void {
   Deno.test({
     name: "config: loadPlugins returns [] when plugins field is absent",
     fn: async () => {
-      const result = await loadPlugins({ title: "", description: "", author: "" });
+      const result = await loadPlugins({
+        title: "",
+        description: "",
+        author: "",
+      });
       assertEquals(result, []);
     },
   });
@@ -66,7 +70,12 @@ export function registerConfigTests(): void {
   Deno.test({
     name: "config: loadPlugins returns [] when plugins array is empty",
     fn: async () => {
-      const result = await loadPlugins({ title: "", description: "", author: "", plugins: [] });
+      const result = await loadPlugins({
+        title: "",
+        description: "",
+        author: "",
+        plugins: [],
+      });
       assertEquals(result, []);
     },
   });

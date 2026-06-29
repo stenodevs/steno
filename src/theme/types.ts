@@ -1,3 +1,5 @@
+import type { StenoPlugin } from "../plugins.ts";
+
 /**
  * Defines the contract a Steno theme package must export.
  */
@@ -38,10 +40,22 @@ export interface StenoTheme {
    * Optional schema defining the configuration options the theme supports.
    * This is a JSON Schema object.
    */
-  configSchema?: Record<string, unknown>;
+  configSchema?: Record<string, ThemeConfigField>;
 
   /**
    * Optional default configuration values for the theme.
    */
   defaultConfig?: Record<string, unknown>;
+
+  /**
+   * Optional plugins bundled with this theme.
+   * These are merged with site-level plugins and run on every page build.
+   */
+  plugins?: StenoPlugin[];
+}
+
+export interface ThemeConfigField {
+  type: "string" | "number" | "boolean";
+  default?: unknown;
+  description?: string;
 }

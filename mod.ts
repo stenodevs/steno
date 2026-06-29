@@ -15,13 +15,15 @@
  * @module
  */
 
-import { loadConfig, type SiteConfig } from "./src/config.ts";
+import { loadConfig, loadPlugins, type SiteConfig } from "./src/config.ts";
+import type { StenoPlugin } from "./src/plugins.ts";
 import { Theme } from "./src/theme/theme.ts";
 import type { StenoTheme } from "./src/theme/types.ts";
 import { ensureDirSync } from "./src/fileUtils.ts";
 import { parseFrontmatter } from "./src/frontmatter.ts";
 import { startDevServer } from "./src/server.ts";
 import { parseCliArgs, printHelp } from "./src/cli.ts";
+import { runAstTransforms, runHtmlTransforms } from "./src/plugins.ts";
 import { marked } from "marked";
 import { dirname, isAbsolute, join } from "@std/path";
 
@@ -30,6 +32,7 @@ export type { ScribeOptions } from "./src/scribe.ts";
 export type { SiteConfig } from "./src/config.ts";
 export type { StenoTheme } from "./src/theme/types.ts";
 export { Theme } from "./src/theme/theme.ts";
+export type { StenoPlugin } from "./src/plugins.ts";
 
 /**
  * The main orchestrator class for a Steno static site project.
@@ -48,6 +51,9 @@ export class Steno {
   private theme?: Theme;
   private themeLoadingPromise: Promise<void>;
   private autoBuildOnInit: boolean;
+  private plugins: StenoPlugin[] = [];
+  private pluginsLoadingPromise: Promise<void>;
+
 
   /**
    * Creates a new Steno instance.
@@ -62,8 +68,20 @@ export class Steno {
     this.config = loadConfig(configPath);
     this.autoBuildOnInit = autoBuildOnInit;
     this.themeLoadingPromise = this.loadTheme();
+    this.pluginsLoadingPromise = this.loadPlugins();
     this.init();
   }
+
+  /**
+   * Dynamically imports plugins declared in the site config and initializes them.
+   * @private
+   */
+  private async loadPlugins(): Promise<void> {
+    await this.themeLoadingPromise;
+    const sitePlugins = await loadPlugins(this.config);
+    this.plugins = [...(this.theme?.plugins ?? []), ...sitePlugins];
+  }
+
 
   /**
    * Dynamically imports the JSR/NPM theme package, or loads a local
@@ -158,6 +176,7 @@ export class Steno {
    */
   public async build(): Promise<void> {
     await this.themeLoadingPromise;
+    await this.pluginsLoadingPromise;
 
     const contentDir = this.config.contentDir || "content";
     const outputDir = this.config.output || "dist";
@@ -182,8 +201,12 @@ export class Steno {
             fullPath,
           );
 
-          // Convert Markdown to HTML
-          const htmlContent = await marked.parse(body);
+          // plugins
+          let tokens = marked.lexer(body);
+          tokens = await runAstTransforms(tokens, this.plugins);
+          let htmlContent = marked.parser(tokens);
+          htmlContent = await runHtmlTransforms(htmlContent, this.plugins);
+
 
           // Determine output file path
           let outputFilePath = join(

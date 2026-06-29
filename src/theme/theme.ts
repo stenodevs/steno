@@ -1,8 +1,9 @@
 import { render } from "../scribe.ts";
-import type { StenoTheme } from "./types.ts";
+import type {StenoTheme, ThemeConfigField} from "./types.ts";
 import { dirname, join } from "@std/path";
 import { ensureDirSync } from "../fileUtils.ts";
 import { parse as parseYaml } from "@std/yaml";
+import type {StenoPlugin} from "../plugins.ts";
 
 type ThemeConfig = Record<string, unknown>;
 
@@ -11,6 +12,7 @@ interface ThemeDirectoryMetadata {
   version?: string;
   components?: Record<string, string>;
   defaultConfig?: ThemeConfig;
+  configSchema?: Record<string, ThemeConfigField>
 }
 
 /**
@@ -27,6 +29,7 @@ export class Theme {
   private themeData: StenoTheme;
   private layoutPaths: Record<string, string> = {};
   private componentPaths: Record<string, string> = {};
+  public readonly plugins: StenoPlugin[];
 
   /**
    * Creates a new Theme instance.
@@ -38,11 +41,28 @@ export class Theme {
     this.themeData = themeData;
     this.name = themeData.name;
     this.version = themeData.version;
+    this.plugins = themeData.plugins ?? [];
+
+    const schemaDefaults = this.resolveSchemaDefaults(themeData.configSchema);
 
     this.config = {
+      ...schemaDefaults,
       ...themeData.defaultConfig,
       ...userConfig,
     };
+  }
+
+  private resolveSchemaDefaults(
+      schema?: Record<string, ThemeConfigField>,
+  ): ThemeConfig {
+    if (!schema) return {};
+    const result: ThemeConfig = {};
+    for (const [key, field] of Object.entries(schema)) {
+      if (field.default !== undefined) {
+        result[key] = field.default;
+      }
+    }
+    return result;
   }
 
   /**
@@ -145,6 +165,7 @@ export class Theme {
       components,
       assets,
       defaultConfig: metadata.defaultConfig || {},
+      configSchema: metadata.configSchema,
     };
 
     const themeInstance = new Theme(themeData, userConfig);

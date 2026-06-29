@@ -1,6 +1,7 @@
 import { parse as parseYaml } from "@std/yaml";
 import { parse as parseToml } from "@std/toml";
 import type { StenoPlugin } from "./plugins.ts";
+import type { CollectionConfig } from "./collections.ts";
 
 /**
  * Represents an entry for a Steno plugin, allowing for package specification and optional configuration.
@@ -30,6 +31,8 @@ export interface SiteConfig {
   output?: string;
   /** An array of plugins to be loaded, specified as package names or objects with options. */
   plugins?: Array<string | PluginEntry>;
+  /** Optional configuration for collections. */
+  collections?: Record<string, CollectionConfig>;
   /** Custom configuration options. */
   custom?: {
     /** Optional array of stylesheet URLs to be included. */

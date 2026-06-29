@@ -6,6 +6,7 @@ import { registerScribeTests } from "./src/scribe_test.ts";
 import { registerThemeTests } from "./src/theme/theme_test.ts";
 import { registerBuildTests } from "./src/build_test.ts";
 import { registerPluginTests } from "./src/plugins_test.ts";
+import { registerCollectionTests } from "./src/collections_test.ts";
 
 registerCliTests();
 registerConfigTests();
@@ -15,3 +16,4 @@ registerScribeTests();
 registerThemeTests();
 registerBuildTests();
 registerPluginTests();
+registerCollectionTests();

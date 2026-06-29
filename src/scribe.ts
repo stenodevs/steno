@@ -121,7 +121,7 @@ function parseProps(attrString: string): Record<string, string> {
 
     // Parse attribute name
     const nameStart = i;
-    while (i < attrString.length && !/\s|=|>|\//.test(attrString[i])) {
+    while (i < attrString.length && !/[\s=>\/]/.test(attrString[i])) {
       i++;
     }
     const name = attrString.substring(nameStart, i);
@@ -151,8 +151,7 @@ function parseProps(attrString: string): Record<string, string> {
           else if (attrString[i] === "}") braceCount--;
           if (braceCount > 0) i++;
         }
-        const val = attrString.substring(start, i).trim();
-        props[name] = val;
+        props[name] = attrString.substring(start, i).trim();
         i++; // skip '}'
       } else if (attrString[i] === '"' || attrString[i] === "'") {
         // Quoted string attribute
@@ -168,7 +167,7 @@ function parseProps(attrString: string): Record<string, string> {
       } else {
         // Unquoted attribute value
         const start = i;
-        while (i < attrString.length && !/\s|>|\//.test(attrString[i])) {
+        while (i < attrString.length && !/[\s>\/]/.test(attrString[i])) {
           i++;
         }
         const val = attrString.substring(start, i);
@@ -183,8 +182,8 @@ function parseProps(attrString: string): Record<string, string> {
 }
 
 class ScribeParser {
-  private input: string;
-  private filePath?: string;
+  private readonly input: string;
+  private readonly filePath?: string;
   private pos = 0;
 
   constructor(input: string, filePath?: string) {
@@ -550,7 +549,7 @@ export function compileToFunction(
  * ```ts
  * import { render } from "@steno/steno";
  *
- * const html = render({
+ * const HTML = render({
  *   template: "<h1>{title}</h1>",
  *   context: { title: "Hello World" },
  *   components: {}
@@ -599,10 +598,7 @@ export function render(options: ScribeOptions): string {
   const contextProxy = new Proxy(options.context, {
     has(_target, key) {
       if (typeof key === "symbol") return false;
-      if (key === "html" || key === "helpers" || key === "context") {
-        return false;
-      }
-      return true;
+      return !(key === "html" || key === "helpers" || key === "context");
     },
     get(target, key) {
       if (key === Symbol.unscopables) return undefined;

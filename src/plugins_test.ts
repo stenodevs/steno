@@ -277,7 +277,7 @@ export function registerPluginTests(): void {
     assertEquals(received, config);
   });
 
-  Deno.test("plugins: all lifecycle hooks are called in correct order during build", async () => {
+  Deno.test("plugins: lifecycle hooks can be invoked in sequence", async () => {
     const order: string[] = [];
     const plugin: StenoPlugin = {
       name: "test",

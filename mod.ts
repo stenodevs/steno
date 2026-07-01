@@ -155,7 +155,7 @@ export class Steno {
             isAbsolute(themeName) ? themeName : join(Deno.cwd(), themeName)
           }`;
 
-        let stat;
+        let stat: Deno.FileInfo | undefined;
         try {
           stat = Deno.statSync(new URL(resolvedPath));
         } catch {
@@ -306,9 +306,9 @@ export class Steno {
       await plugin.afterBuild?.(this.config);
     }
 
-    console.log("Build complete.");
-
     await this.hooks.afterBuild?.(this.config);
+
+    console.log("Build complete.");
   }
 
   /**

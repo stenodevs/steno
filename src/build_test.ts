@@ -230,53 +230,65 @@ Content
     },
   });
 
-    Deno.test({
-        name: "build: plugin lifecycle hooks are called in order",
-        permissions: { read: true, write: true },
-        fn: async () => {
-            const tempDir = Deno.makeTempDirSync();
-            const contentDir = join(tempDir, "content");
-            const outputDir = join(tempDir, "dist");
+  Deno.test({
+    name: "build: plugin lifecycle hooks are called in order",
+    permissions: { read: true, write: true },
+    fn: async () => {
+      const tempDir = Deno.makeTempDirSync();
+      const contentDir = join(tempDir, "content");
+      const outputDir = join(tempDir, "dist");
 
-            Deno.mkdirSync(join(contentDir, ".steno"), { recursive: true });
-            Deno.writeTextFileSync(
-                join(contentDir, ".steno", "config.yml"),
-                `title: "Test"\ndescription: ""\nauthor: ""\ncontentDir: "${contentDir}"\noutput: "${outputDir}"\n`,
-            );
-            Deno.writeTextFileSync(
-                join(contentDir, "index.md"),
-                `---\ntitle: "Home"\n---\nHello.`,
-            );
+      Deno.mkdirSync(join(contentDir, ".steno"), { recursive: true });
+      Deno.writeTextFileSync(
+        join(contentDir, ".steno", "config.yml"),
+        `title: "Test"\ndescription: ""\nauthor: ""\ncontentDir: "${contentDir}"\noutput: "${outputDir}"\n`,
+      );
+      Deno.writeTextFileSync(
+        join(contentDir, "index.md"),
+        `---\ntitle: "Home"\n---\nHello.`,
+      );
 
-            const order: string[] = [];
-            const steno = new Steno(join(contentDir, ".steno", "config.yml"), false, {
-                beforeBuild: () => { order.push("hook:beforeBuild"); },
-                afterPage: () => { order.push("hook:afterPage"); },
-                afterBuild: () => { order.push("hook:afterBuild"); },
-            });
-
-            await (steno as any).themeLoadingPromise;
-            await (steno as any).pluginsLoadingPromise;
-
-            (steno as any).plugins = [{
-                name: "test",
-                beforeBuild: () => { order.push("plugin:beforeBuild"); },
-                afterPage: () => { order.push("plugin:afterPage"); },
-                afterBuild: () => { order.push("plugin:afterBuild"); },
-            }];
-
-            await steno.build();
-
-            assertEquals(order, [
-                "plugin:beforeBuild",
-                "hook:beforeBuild",
-                "hook:afterPage",
-                "plugin:afterPage",
-                "plugin:afterBuild",
-                "hook:afterBuild",
-            ]);
-
-            Deno.removeSync(tempDir, { recursive: true });
+      const order: string[] = [];
+      const steno = new Steno(join(contentDir, ".steno", "config.yml"), false, {
+        beforeBuild: () => {
+          order.push("hook:beforeBuild");
         },
-    });
+        afterPage: () => {
+          order.push("hook:afterPage");
+        },
+        afterBuild: () => {
+          order.push("hook:afterBuild");
+        },
+      });
+
+      await (steno as any).themeLoadingPromise;
+      await (steno as any).pluginsLoadingPromise;
+
+      (steno as any).plugins = [{
+        name: "test",
+        beforeBuild: () => {
+          order.push("plugin:beforeBuild");
+        },
+        afterPage: () => {
+          order.push("plugin:afterPage");
+        },
+        afterBuild: () => {
+          order.push("plugin:afterBuild");
+        },
+      }];
+
+      await steno.build();
+
+      assertEquals(order, [
+        "plugin:beforeBuild",
+        "hook:beforeBuild",
+        "hook:afterPage",
+        "plugin:afterPage",
+        "plugin:afterBuild",
+        "hook:afterBuild",
+      ]);
+
+      Deno.removeSync(tempDir, { recursive: true });
+    },
+  });
 }

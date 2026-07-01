@@ -236,7 +236,9 @@ export function registerPluginTests(): void {
     let received: unknown = null;
     const plugin: StenoPlugin = {
       name: "test",
-      beforeBuild: (config) => { received = config; },
+      beforeBuild: (config) => {
+        received = config;
+      },
     };
 
     const config = { title: "Test", description: "", author: "" };
@@ -249,7 +251,9 @@ export function registerPluginTests(): void {
     let received: unknown = null;
     const plugin: StenoPlugin = {
       name: "test",
-      afterPage: (page) => { received = page; },
+      afterPage: (page) => {
+        received = page;
+      },
     };
 
     const page = { path: "/dist/index.html", html: "<p>hello</p>" };
@@ -262,7 +266,9 @@ export function registerPluginTests(): void {
     let received: unknown = null;
     const plugin: StenoPlugin = {
       name: "test",
-      afterBuild: (config) => { received = config; },
+      afterBuild: (config) => {
+        received = config;
+      },
     };
 
     const config = { title: "Test", description: "", author: "" };
@@ -275,10 +281,19 @@ export function registerPluginTests(): void {
     const order: string[] = [];
     const plugin: StenoPlugin = {
       name: "test",
-      beforeBuild: () => { order.push("beforeBuild"); },
-      transformHtml: (html) => { order.push("transformHtml"); return html; },
-      afterPage: () => { order.push("afterPage"); },
-      afterBuild: () => { order.push("afterBuild"); },
+      beforeBuild: () => {
+        order.push("beforeBuild");
+      },
+      transformHtml: (html) => {
+        order.push("transformHtml");
+        return html;
+      },
+      afterPage: () => {
+        order.push("afterPage");
+      },
+      afterBuild: () => {
+        order.push("afterBuild");
+      },
     };
 
     await plugin.beforeBuild!({ title: "", description: "", author: "" });
@@ -286,6 +301,11 @@ export function registerPluginTests(): void {
     await plugin.afterPage!({ path: "/dist/index.html", html: "<p>hi</p>" });
     await plugin.afterBuild!({ title: "", description: "", author: "" });
 
-    assertEquals(order, ["beforeBuild", "transformHtml", "afterPage", "afterBuild"]);
+    assertEquals(order, [
+      "beforeBuild",
+      "transformHtml",
+      "afterPage",
+      "afterBuild",
+    ]);
   });
 }

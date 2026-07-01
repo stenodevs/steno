@@ -229,4 +229,63 @@ export function registerPluginTests(): void {
       assertEquals(order, ["theme", "site"]);
     });
   });
+
+  // lifecycle hooks
+
+  Deno.test("plugins: beforeBuild is called with site config", async () => {
+    let received: unknown = null;
+    const plugin: StenoPlugin = {
+      name: "test",
+      beforeBuild: (config) => { received = config; },
+    };
+
+    const config = { title: "Test", description: "", author: "" };
+    await plugin.beforeBuild!(config);
+
+    assertEquals(received, config);
+  });
+
+  Deno.test("plugins: afterPage is called with path and html", async () => {
+    let received: unknown = null;
+    const plugin: StenoPlugin = {
+      name: "test",
+      afterPage: (page) => { received = page; },
+    };
+
+    const page = { path: "/dist/index.html", html: "<p>hello</p>" };
+    await plugin.afterPage!(page);
+
+    assertEquals(received, page);
+  });
+
+  Deno.test("plugins: afterBuild is called with site config", async () => {
+    let received: unknown = null;
+    const plugin: StenoPlugin = {
+      name: "test",
+      afterBuild: (config) => { received = config; },
+    };
+
+    const config = { title: "Test", description: "", author: "" };
+    await plugin.afterBuild!(config);
+
+    assertEquals(received, config);
+  });
+
+  Deno.test("plugins: all lifecycle hooks are called in correct order during build", async () => {
+    const order: string[] = [];
+    const plugin: StenoPlugin = {
+      name: "test",
+      beforeBuild: () => { order.push("beforeBuild"); },
+      transformHtml: (html) => { order.push("transformHtml"); return html; },
+      afterPage: () => { order.push("afterPage"); },
+      afterBuild: () => { order.push("afterBuild"); },
+    };
+
+    await plugin.beforeBuild!({ title: "", description: "", author: "" });
+    await plugin.transformHtml!("<p>hi</p>");
+    await plugin.afterPage!({ path: "/dist/index.html", html: "<p>hi</p>" });
+    await plugin.afterBuild!({ title: "", description: "", author: "" });
+
+    assertEquals(order, ["beforeBuild", "transformHtml", "afterPage", "afterBuild"]);
+  });
 }

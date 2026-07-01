@@ -6,7 +6,7 @@
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/path@1": "1.1.4",
     "jsr:@std/toml@1": "1.0.11",
-    "jsr:@std/yaml@1": "1.0.10",
+    "jsr:@std/yaml@1.1.2": "1.1.2",
     "npm:marked@latest": "17.0.3"
   },
   "jsr": {
@@ -34,8 +34,8 @@
         "jsr:@std/collections"
       ]
     },
-    "@std/yaml@1.0.10": {
-      "integrity": "245706ea3511cc50c8c6d00339c23ea2ffa27bd2c7ea5445338f8feff31fa58e"
+    "@std/yaml@1.1.2": {
+      "integrity": "de612653c036749ba2044165e316f52412b0f0698afffb7ee80b5331d6d2abae"
     }
   },
   "npm": {
@@ -49,7 +49,7 @@
       "jsr:@std/assert@1",
       "jsr:@std/path@1",
       "jsr:@std/toml@1",
-      "jsr:@std/yaml@1",
+      "jsr:@std/yaml@1.1.2",
       "npm:marked@latest"
     ]
   }

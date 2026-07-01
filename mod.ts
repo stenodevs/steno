@@ -67,12 +67,12 @@ export interface StenoHooks {
  * ```
  */
 export class Steno {
-  private config: SiteConfig;
+  private readonly config: SiteConfig;
   private theme?: Theme;
-  private themeLoadingPromise: Promise<void>;
-  private autoBuildOnInit: boolean;
+  private readonly themeLoadingPromise: Promise<void>;
+  private readonly autoBuildOnInit: boolean;
   private plugins: StenoPlugin[] = [];
-  private pluginsLoadingPromise: Promise<void>;
+  private readonly pluginsLoadingPromise: Promise<void>;
 
   /**
    * Creates a new Steno instance.

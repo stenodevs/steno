@@ -198,6 +198,9 @@ export class Steno {
     await this.themeLoadingPromise;
     await this.pluginsLoadingPromise;
 
+    for (const plugin of this.plugins) {
+      await plugin.beforeBuild?.(this.config);
+    }
     await this.hooks.beforeBuild?.(this.config);
 
     const contentDir = this.config.contentDir || "content";
@@ -273,6 +276,12 @@ export class Steno {
             path: outputFilePath,
             html: renderedContent,
           });
+          for (const plugin of this.plugins) {
+            await plugin.afterPage?.({
+              path: outputFilePath,
+              html: renderedContent
+            });
+          }
         }
       }
     };
@@ -281,6 +290,10 @@ export class Steno {
 
     if (this.theme) {
       await this.theme.copyAssets(outputDir);
+    }
+
+    for (const plugin of this.plugins) {
+      await plugin.afterBuild?.(this.config);
     }
 
     console.log("Build complete.");

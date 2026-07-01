@@ -25,7 +25,11 @@ import { startDevServer } from "./src/server.ts";
 import { parseCliArgs, printHelp } from "./src/cli.ts";
 import { runAstTransforms, runHtmlTransforms } from "./src/plugins.ts";
 import { buildCollections, type CollectionMap } from "./src/collections.ts";
-export type { Collection, CollectionItem, CollectionMap } from "./src/collections.ts";
+export type {
+  Collection,
+  CollectionItem,
+  CollectionMap,
+} from "./src/collections.ts";
 import { marked } from "marked";
 import { dirname, isAbsolute, join } from "@std/path";
 
@@ -82,9 +86,9 @@ export class Steno {
    * @param hooks Optional lifecycle hooks to tap into the build process.
    */
   constructor(
-      configPath: string = "content/.steno/config.yml",
-      autoBuildOnInit = true,
-      private hooks: StenoHooks = {},
+    configPath: string = "content/.steno/config.yml",
+    autoBuildOnInit = true,
+    private hooks: StenoHooks = {},
   ) {
     this.config = loadConfig(configPath);
     this.autoBuildOnInit = autoBuildOnInit;
@@ -151,29 +155,32 @@ export class Steno {
             isAbsolute(themeName) ? themeName : join(Deno.cwd(), themeName)
           }`;
 
+        let stat;
         try {
-          const stat = Deno.statSync(new URL(resolvedPath));
-          if (stat.isDirectory) {
-            let found = false;
-            for (const entry of ["mod.ts", "theme.ts", "index.ts"]) {
-              const testPath = `${resolvedPath.replace(/\/$/, "")}/${entry}`;
-              try {
-                Deno.statSync(new URL(testPath));
-                resolvedPath = testPath;
-                found = true;
-                break;
-              } catch {
-                // ignore
-              }
-            }
-            if (!found) {
-              throw new Error(
-                `Could not find mod.ts, theme.ts, or index.ts in theme directory "${themeName}"`,
-              );
-            }
-          }
+          stat = Deno.statSync(new URL(resolvedPath));
         } catch {
           // Stat failed, try importing directly
+        }
+
+        if (stat?.isDirectory) {
+          let found = false;
+          for (const entry of ["mod.ts", "theme.ts", "index.ts"]) {
+            const testPath = `${resolvedPath.replace(/\/$/, "")}/${entry}`;
+            try {
+              Deno.statSync(new URL(testPath));
+              resolvedPath = testPath;
+              found = true;
+              break;
+            } catch {
+              // ignore
+            }
+          }
+          if (!found) {
+            console.error(
+              `Failed to load theme "${themeName}": Could not find mod.ts, theme.ts, or index.ts in theme directory "${themeName}"`,
+            );
+            return;
+          }
         }
         const themeModule = await import(resolvedPath);
         const themeData = (themeModule.default || themeModule) as StenoTheme;
@@ -210,9 +217,9 @@ export class Steno {
 
     // Pass 1: build collections
     const collections: CollectionMap = await buildCollections(
-        contentDir,
-        this.config,
-        this.plugins,
+      contentDir,
+      this.config,
+      this.plugins,
     );
 
     // Pass 2: render pages
@@ -228,7 +235,10 @@ export class Steno {
         } else if (entry.isFile && entry.name.endsWith(".md")) {
           const fileContents = Deno.readTextFileSync(fullPath);
 
-          const { frontmatter, body } = parseFrontmatter(fileContents, fullPath);
+          const { frontmatter, body } = parseFrontmatter(
+            fileContents,
+            fullPath,
+          );
 
           let tokens = marked.lexer(body);
           tokens = await runAstTransforms(tokens, this.plugins);
@@ -236,8 +246,8 @@ export class Steno {
           htmlContent = await runHtmlTransforms(htmlContent, this.plugins);
 
           let outputFilePath = join(
-              outputDir,
-              entryRelPath.replace(/\.md$/, ".html"),
+            outputDir,
+            entryRelPath.replace(/\.md$/, ".html"),
           );
           if (this.config.custom?.shortUrls) {
             if (entryRelPath !== "index.md") {
@@ -253,22 +263,22 @@ export class Steno {
           }
 
           const layoutName = typeof frontmatter.layout === "string"
-              ? frontmatter.layout
-              : "layout";
+            ? frontmatter.layout
+            : "layout";
 
           const renderedContent = this.theme
-              ? this.theme.renderLayout(layoutName, htmlContent, {
-                site: { ...this.config },
-                theme: {
-                  name: this.theme.name,
-                  version: this.theme.version,
-                  ...this.theme.config,
-                },
-                collections, // ← injected here
-                title: frontmatter.title || this.config.title,
-                ...frontmatter,
-              })
-              : htmlContent;
+            ? this.theme.renderLayout(layoutName, htmlContent, {
+              site: { ...this.config },
+              theme: {
+                name: this.theme.name,
+                version: this.theme.version,
+                ...this.theme.config,
+              },
+              collections, // ← injected here
+              title: frontmatter.title || this.config.title,
+              ...frontmatter,
+            })
+            : htmlContent;
 
           Deno.writeTextFileSync(outputFilePath, renderedContent);
 
@@ -279,7 +289,7 @@ export class Steno {
           for (const plugin of this.plugins) {
             await plugin.afterPage?.({
               path: outputFilePath,
-              html: renderedContent
+              html: renderedContent,
             });
           }
         }
